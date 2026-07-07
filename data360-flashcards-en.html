@@ -84,7 +84,7 @@
     text-transform:uppercase; color: var(--coral); border: 1px solid rgba(251,113,133,0.4);
     background: rgba(251,113,133,0.08); border-radius: 4px; padding: 2px 6px; vertical-align: middle;
   }
-  .qtext{ font-family:'Space Grotesk', sans-serif; font-size: 18px; line-height:1.42; font-weight:500; flex:1; }
+  .qtext{ font-family:'Space Grotesk', sans-serif; font-size: clamp(15px, 4.2vw, 18px); line-height:1.42; font-weight:500; flex:1; }
   .atext{ font-size: 14.5px; line-height:1.55; color: var(--text); flex:1; }
   .atext b{ color: var(--teal); }
   .hint{ font-family:'IBM Plex Mono', monospace; font-size: 10.5px; color: var(--muted); margin-top: 14px; }
@@ -162,6 +162,7 @@
       <div class="atext" id="atext">Loading...</div>
     </div>
   </div>
+  <div id="measurer" class="face" style="position:fixed; top:-9999px; left:-9999px; right:auto; bottom:auto; height:auto; visibility:hidden;"></div>
 </div>
 
 <div class="difficulty">
@@ -382,6 +383,23 @@ function jumpToSection(sIdx){
   if(target !== -1){ idx = target; flipped=false; render(); }
 }
 
+function measureFaceHeight(innerHtml){
+  const measurer = document.getElementById('measurer');
+  const cardWidth = document.getElementById('card').getBoundingClientRect().width;
+  measurer.style.width = cardWidth + 'px';
+  measurer.innerHTML = innerHtml;
+  return measurer.offsetHeight;
+}
+
+function resizeCard(c){
+  const frontHtml = '<div class="tag">Section ' + (c.s+1) + '</div><div class="qtext">' + c.q + '</div><div class="hint">placeholder</div>';
+  const backHtml = '<div class="tag">Answer</div><div class="atext">' + c.a + '</div>';
+  const frontH = measureFaceHeight(frontHtml);
+  const backH = measureFaceHeight(backHtml);
+  const finalH = Math.max(frontH, backH, 220);
+  document.getElementById('card').style.height = finalH + 'px';
+}
+
 function render(){
   if(document.activeElement && document.activeElement.blur){ document.activeElement.blur(); }
   const vis = visibleIndices();
@@ -392,6 +410,7 @@ function render(){
   document.getElementById('tagBack').textContent = 'Answer';
   document.getElementById('qtext').textContent = c.q;
   document.getElementById('atext').innerHTML = c.a;
+  resizeCard(c);
   document.getElementById('counter').textContent = (idx+1) + ' / ' + vis.length;
   document.getElementById('card').classList.toggle('flipped', flipped);
   document.getElementById('explainText').innerHTML = c.exp || '';
@@ -423,6 +442,15 @@ document.addEventListener('keydown', (e)=>{
   if(e.code==='ArrowLeft'){ prevCard(); }
   if(e.code==='Digit1'){ markCard(false); }
   if(e.code==='Digit2'){ markCard(true); }
+});
+
+let resizeTimer;
+window.addEventListener('resize', ()=>{
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(()=>{
+    const vis = visibleIndices();
+    resizeCard(cards[vis[idx]]);
+  }, 150);
 });
 
 render();
