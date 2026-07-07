@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>WK 2026 — Alles-in-één</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:#020b18;font-family:'Courier New',Courier,monospace;color:#e2e8f0;min-height:100vh}
+/* HEADER */
+#hdr{background:linear-gradient(180deg,#0a1628,#020b18);border-bottom:1px solid #1e293b;padding:12px 16px 0;position:sticky;top:0;z-index:50}
+.hdr-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.logo-wk{font-size:20px;font-weight:900;color:#3b82f6;letter-spacing:-1px}
+.logo-sub{font-size:9px;color:#f97316;font-weight:700;letter-spacing:2px;margin-left:7px}
+.hdr-btns{display:flex;gap:6px}
+.hdr-btn{background:#0f172a;border:1px solid #1e293b;border-radius:8px;padding:5px 9px;color:#94a3b8;font-size:10px;cursor:pointer;font-family:inherit;transition:all .2s;white-space:nowrap}
+.hdr-btn:hover{border-color:#3b82f6;color:#3b82f6}
+.hdr-btn.loading{color:#f59e0b;border-color:#f59e0b}
+#status{font-size:8px;color:#334155;margin-bottom:5px;min-height:12px}
+#status.ok{color:#22c55e}
+#status.err{color:#ef4444}
+/* TABS */
+.tabs{display:flex}
+.tab{flex:1;padding:7px 0;text-align:center;font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:#475569;border-bottom:2px solid transparent;cursor:pointer;transition:all .2s}
+.tab.active{color:#3b82f6;border-bottom-color:#3b82f6}
+/* MAIN */
+#main{padding:10px 14px 60px;max-width:720px;margin:0 auto}
+/* SEARCH */
+.srch{width:100%;background:#0f172a;border:1px solid #1e293b;border-radius:8px;padding:7px 11px;color:#e2e8f0;font-size:12px;outline:none;font-family:inherit;margin-bottom:9px}
+/* LEGEND */
+.legend{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:9px;font-size:9px;color:#64748b;align-items:center}
+.ldot{width:6px;height:6px;border-radius:99px;display:inline-block;margin-right:2px}
+/* GROUP */
+.grp-wrap{margin-bottom:7px}
+.grp-btn{width:100%;display:flex;align-items:center;justify-content:space-between;border-radius:10px;padding:9px 13px;cursor:pointer;border:none;text-align:left;transition:all .2s}
+.grp-letter{width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;color:#fff;flex-shrink:0}
+/* MATCH CARD */
+.mc{border-radius:10px;padding:9px 12px;cursor:pointer;transition:all .2s;margin-bottom:5px;border:1px solid #1e293b;background:#0f172a}
+.mc.open{background:#1e293b;border-color:#3b82f6}
+.mc-row{display:flex;align-items:center;gap:5px}
+.ts{flex:1;display:flex;align-items:center;gap:4px;min-width:0}
+.ts.away{justify-content:flex-end;text-align:right}
+.tf{font-size:15px;flex-shrink:0}
+.tn{font-size:11px;font-weight:700;color:#e2e8f0;line-height:1.1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tm{font-size:8px;color:#64748b}
+.sb{border-radius:8px;padding:3px 9px;min-width:58px;text-align:center;flex-shrink:0}
+.st{font-size:15px;font-weight:900;color:#fff;font-family:'Courier New',monospace}
+.st.live{animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.pills{display:flex;flex-direction:column;gap:2px;align-items:flex-end;flex-shrink:0}
+.pill{border-radius:99px;padding:2px 5px;font-size:7px;font-weight:700;white-space:nowrap}
+.pill-live{background:#ef444422;border:1px solid #ef4444;color:#ef4444}
+.pill-done{background:#22c55e22;border:1px solid #22c55e;color:#22c55e}
+.pill-sc{background:rgba(10,31,18,.4);border:1px solid rgba(22,163,74,.3);color:#4ade80}
+.chev{color:#334155;font-size:10px;flex-shrink:0}
+/* DATE CHIP */
+.dt-chip{font-size:8px;color:#475569;margin-bottom:2px}
+/* DETAIL */
+.mc-det{margin-top:10px;border-top:1px solid #1e293b;padding-top:9px}
+.mc-lbl{font-size:9px;color:#94a3b8;text-align:center;margin-bottom:7px;font-style:italic}
+/* STAT BAR */
+.sbl{display:flex;justify-content:space-between;font-size:8px;color:#94a3b8;margin-bottom:1px}
+.sblc{font-size:7px;letter-spacing:1px;text-transform:uppercase}
+.sbt{display:flex;gap:2px;height:3px;border-radius:2px;overflow:hidden;margin-bottom:4px}
+.sbh{flex:1;background:#1e293b;display:flex;justify-content:flex-end}
+.sbfh{background:#3b82f6;border-radius:2px;height:100%}
+.sbd{width:2px;background:#020b18}
+.sba{flex:1;background:#1e293b}
+.sbfa{background:#f97316;border-radius:2px;height:100%}
+/* SCORER */
+.sc-blk{margin-top:9px;padding:8px 9px 5px;background:#020b18;border-radius:8px;border:1px solid #1e293b}
+.sc-hdr{display:flex;align-items:center;gap:4px;margin-bottom:7px;border-bottom:1px solid #1e293b;padding-bottom:5px;font-size:8px;font-weight:700;color:#94a3b8;letter-spacing:1px;text-transform:uppercase}
+.sc-row{display:flex;align-items:center;gap:6px;padding:5px 7px;border-radius:6px;margin-bottom:3px;border:1px solid #1e293b;background:#0a1628}
+.sc-row.top{background:#0a1f12;border-color:rgba(22,163,74,.27)}
+.sr{width:16px;height:16px;border-radius:99px;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:900;background:#1e293b;color:#475569;flex-shrink:0}
+.sr.top{background:#16a34a;color:#fff}
+.si{flex:1;min-width:0}
+.sn{font-size:10px;font-weight:700;color:#cbd5e1}
+.sn.top{color:#4ade80}
+.sc2{font-size:8px;color:#475569}
+.sb2{display:flex;align-items:center;gap:4px;margin-top:1px}
+.sb2t{flex:1;height:3px;background:#1e293b;border-radius:99px;overflow:hidden}
+.sb2f{height:100%;background:#334155;border-radius:99px}
+.sb2f.top{background:#16a34a}
+.sp{font-size:8px;color:#64748b;font-weight:700;flex-shrink:0}
+.sp.top{color:#4ade80}
+.sg{font-size:8px;color:#475569;flex-shrink:0}
+.no-sc{font-size:9px;color:#475569;text-align:center;padding:7px}
+.real-sc{display:flex;align-items:center;gap:5px;padding:4px 7px;border-radius:6px;background:#0a1f12;border:1px solid rgba(22,163,74,.2);margin-bottom:3px;font-size:10px}
+.real-min{font-size:8px;color:#64748b;flex-shrink:0;width:25px}
+/* DATE SEPARATOR (chrono tab) */
+.date-sep{font-size:10px;font-weight:700;color:#3b82f6;padding:10px 0 5px;border-bottom:1px solid #1e293b;margin-bottom:6px;letter-spacing:.5px}
+/* STANDINGS */
+.std-grp{margin-bottom:14px}
+.std-title{font-size:10px;font-weight:700;color:#94a3b8;margin-bottom:5px;letter-spacing:1px}
+.std-tbl{width:100%;border-collapse:collapse;font-size:10px}
+.std-tbl th{color:#475569;font-weight:700;padding:3px 5px;text-align:left;border-bottom:1px solid #1e293b;font-size:8px}
+.std-tbl td{padding:4px 5px;border-bottom:1px solid #0f172a}
+.std-tbl tr.q1 td{color:#4ade80}
+.std-tbl tr.q2 td{color:#86efac}
+.std-tbl tr.q3 td{color:#f59e0b}
+.pb{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:4px;font-size:7px;font-weight:900}
+/* BRACKET */
+#bwrap{overflow-x:auto;padding-bottom:8px;margin-bottom:12px}
+.bkt{display:flex;align-items:stretch;min-width:700px}
+.bkt-rnd{display:flex;flex-direction:column;flex:1;min-width:0}
+.bkt-lbl{text-align:center;font-size:7px;font-weight:700;color:#475569;letter-spacing:1px;text-transform:uppercase;padding:5px 3px;border-bottom:1px solid #1e293b;margin-bottom:3px}
+.bkt-ms{display:flex;flex-direction:column;justify-content:space-around;flex:1;padding:3px 2px;gap:3px}
+.bm{background:#0f172a;border:1px solid #1e293b;border-radius:7px;padding:5px 7px}
+.bm.nl{border-left:2px solid #f97316}
+.bm.done{border-color:#22c55e33}
+.bm.tbd{opacity:.55}
+.bmt{display:flex;align-items:center;gap:4px;padding:2px 0}
+.bmt.won .bmn{color:#4ade80;font-weight:700}
+.bmt.lost .bmn{color:#475569}
+.bmf{font-size:11px;flex-shrink:0}
+.bmn{font-size:9px;color:#94a3b8;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bms{font-size:10px;font-weight:700;font-family:monospace;color:#e2e8f0;flex-shrink:0}
+.bmdv{height:1px;background:#1e293b;margin:2px 0}
+.bm-date{font-size:7px;color:#334155;margin-top:2px}
+.bconn{display:flex;flex-direction:column;justify-content:space-around;width:10px;flex-shrink:0}
+.bconn-line{flex:1;border-right:1px solid #1e293b}
+/* MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(2,11,24,.85);z-index:100;display:flex;align-items:center;justify-content:center;padding:16px}
+.modal{background:#0a1628;border:1px solid #1e293b;border-radius:12px;padding:20px;width:100%;max-width:420px;max-height:80vh;overflow-y:auto}
+.modal h3{font-size:14px;color:#3b82f6;margin-bottom:14px}
+.modal label{font-size:10px;color:#94a3b8;display:block;margin-bottom:3px;margin-top:10px}
+.modal input{width:100%;background:#020b18;border:1px solid #1e293b;border-radius:7px;padding:7px 10px;color:#e2e8f0;font-size:11px;outline:none;font-family:inherit}
+.modal-btns{display:flex;gap:8px;margin-top:14px}
+.mbtn{flex:1;border:none;border-radius:7px;padding:8px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit}
+.mbtn.save{background:#3b82f6;color:#fff}
+.mbtn.cancel{background:#1e293b;color:#94a3b8}
+.modal-note{font-size:9px;color:#334155;margin-top:10px;line-height:1.6}
+.modal-note a{color:#3b82f6}
+/* MISC */
+.no-res{text-align:center;padding:30px;color:#334155;font-size:11px}
+.sec-lbl{font-size:8px;color:#475569;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:7px;padding:3px 0;border-bottom:1px solid #1e293b}
+.footer{margin-top:18px;padding:10px 12px;background:#0a1628;border-radius:8px;border:1px solid #1e293b;font-size:8px;color:#334155;line-height:1.7}
+.footer strong{color:#475569}
+</style>
+</head>
+<body>
+<div id="pw-overlay" style="position:fixed;inset:0;background:#0f172a;color:#e2e8f0;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  z-index:9999;font-family:sans-serif;padding:1rem;text-align:center;">
+  <p style="margin-bottom:1rem;">Voer wachtwoord in</p>
+  <input id="pw-input" type="password" style="padding:0.6rem 1rem;border-radius:8px;
+    border:1px solid #475569;background:#1e293b;color:#e2e8f0;font-size:1rem;">
+  <button onclick="checkPw()" style="margin-top:0.8rem;padding:0.6rem 1.2rem;
+    border-radius:8px;border:none;background:#38bdf8;color:#0f172a;font-weight:bold;">
+    Ontgrendel
+  </button>
+  <p id="pw-error" style="color:#f87171;margin-top:0.6rem;display:none;">Onjuist wachtwoord</p>
+</div>
+<script>
+  function checkPw() {
+    const val = document.getElementById('pw-input').value;
+    if (val === "Jefrey1988") {
+      document.getElementById('pw-overlay').style.display = 'none';
+      sessionStorage.setItem('pw-ok', 'true');
+    } else {
+      document.getElementById('pw-error').style.display = 'block';
+    }
+  }
+  if (sessionStorage.getItem('pw-ok') === 'true') {
+    document.getElementById('pw-overlay').style.display = 'none';
+  }
+  document.getElementById('pw-input').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') checkPw();
+  });
+</script>
+<div id="hdr">
+  <div class="hdr-top">
+    <div><span class="logo-wk">WK 2026</span><span class="logo-sub">ALLES-IN-ÉÉN</span></div>
+    <div class="hdr-btns">
+      <button class="hdr-btn" onclick="showSettings()">⚙️ API</button>
+      <button class="hdr-btn" id="rbtn" onclick="refreshData()">🔄 Live</button>
+    </div>
+  </div>
+  <div id="status">Stel API-key in via ⚙️ voor live data</div>
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('groups')">📋 Groepen</div>
+    <div class="tab" onclick="showTab('chrono')">🗓 Schema</div>
+    <div class="tab" onclick="showTab('standings')">📊 Stand</div>
+    <div class="tab" onclick="showTab('bracket')">🏆 Bracket</div>
+  </div>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div class="modal-bg" id="settings-modal" style="display:none" onclick="if(event.target===this)closeSettings()">
+  <div class="modal">
+    <h3>⚙️ API-instellingen</h3>
+    <label>API Base URL</label>
+    <input id="cfg-url" type="text" placeholder="https://v3.football.api-sports.io">
+    <label>API Key</label>
+    <input id="cfg-key" type="text" placeholder="Jouw RapidAPI of API-Sports key">
+    <label>Header naam voor key</label>
+    <input id="cfg-hdr" type="text" placeholder="x-rapidapi-key">
+    <div class="modal-note">
+      <strong style="color:#475569">API-Football (aanbevolen):</strong><br>
+      URL: <code>https://v3.football.api-sports.io</code><br>
+      Header: <code>x-rapidapi-key</code><br>
+      Aanmaken: <a href="https://rapidapi.com/api-sports/api/api-football" target="_blank">rapidapi.com → API-Football → Free</a><br><br>
+      WK 2026: league=1, season=2026 · 100 calls/dag gratis
+    </div>
+    <div class="modal-btns">
+      <button class="mbtn cancel" onclick="closeSettings()">Annuleer</button>
+      <button class="mbtn save" onclick="saveSettings()">Opslaan &amp; verbinden</button>
+    </div>
+  </div>
+</div>
+
+<div id="main">
+  <div id="tab-groups">
+    <input class="srch" id="search" type="text" placeholder="Zoek land of speler..." oninput="renderGroups()">
+    <div class="legend">
+      <span><span class="ldot" style="background:#22c55e"></span><strong style="color:#22c55e">Hoog</strong> (≥40)</span>
+      <span><span class="ldot" style="background:#f59e0b"></span><strong style="color:#f59e0b">Matig</strong> (20-39)</span>
+      <span><span class="ldot" style="background:#ef4444"></span><strong style="color:#ef4444">Laag</strong> (&lt;20)</span>
+      <span>⚽ eerste scorer</span>
+    </div>
+    <div id="gc"></div>
+    <div class="footer"><strong>Score</strong>: ranking + aanval/defensie + speelstijl + speeldageffect · <strong>Eerste scorer</strong>: teamgoals-aandeel × spelerskwaliteit × positiefactor · Live: echte data na aftrap</div>
+  </div>
+  <div id="tab-chrono" style="display:none">
+    <input class="srch" id="csearch" type="text" placeholder="Zoek land..." oninput="renderChrono()">
+    <div id="cc"></div>
+  </div>
+  <div id="tab-standings" style="display:none">
+    <div id="sc"><div class="no-res">Druk op 🔄 Live voor actuele standen (beschikbaar na 11 juni).</div></div>
+  </div>
+  <div id="tab-bracket" style="display:none">
+    <div class="sec-lbl">🏆 Knockoutfase WK 2026</div>
+    <div id="bwrap"><div id="bc"></div></div>
+    <div id="kolist"></div>
+    <div class="footer"><strong>Bracket</strong>: Vóór KO-fase statistische voorspelling op basis van groepsprestaties. Na wedstrijd: echte uitslag. TBD = afhankelijk van groepseindstand.</div>
+  </div>
+</div>
+
+<script>
+// ═══════════ DATA ═══════════
+const TEAMS={
+  Mexico:{rank:15,att:6.5,def:6.0,style:"aanvallend"},
+  "Zuid-Afrika":{rank:69,att:4.5,def:5.0,style:"fysiek"},
+  "Zuid-Korea":{rank:23,att:6.0,def:6.0,style:"pressing"},
+  Tsjechie:{rank:37,att:5.5,def:5.5,style:"georganiseerd"},
+  Canada:{rank:41,att:5.5,def:5.5,style:"dynamisch"},
+  Bosnie:{rank:56,att:5.5,def:5.0,style:"aanvallend"},
+  Qatar:{rank:37,att:4.0,def:5.0,style:"defensief"},
+  Zwitserland:{rank:20,att:5.5,def:6.5,style:"georganiseerd"},
+  Brazilie:{rank:6,att:8.0,def:7.0,style:"aanvallend"},
+  Marokko:{rank:8,att:6.5,def:8.0,style:"def-counter"},
+  Haiti:{rank:88,att:3.5,def:4.0,style:"defensief"},
+  Schotland:{rank:38,att:5.5,def:5.5,style:"pressing"},
+  VS:{rank:16,att:6.0,def:6.0,style:"pressing"},
+  Paraguay:{rank:55,att:5.0,def:5.5,style:"georganiseerd"},
+  Australie:{rank:23,att:5.5,def:5.5,style:"intensief"},
+  Turkije:{rank:28,att:6.0,def:5.5,style:"aanvallend"},
+  Duitsland:{rank:10,att:7.5,def:7.0,style:"aanvallend"},
+  Curacao:{rank:93,att:3.5,def:3.5,style:"defensief"},
+  Ivoorkust:{rank:54,att:6.0,def:5.5,style:"aanvallend"},
+  Ecuador:{rank:46,att:5.5,def:5.5,style:"pressing"},
+  Nederland:{rank:7,att:7.0,def:6.5,style:"aanvallend"},
+  Japan:{rank:17,att:6.5,def:6.5,style:"pressing"},
+  Zweden:{rank:26,att:5.5,def:6.0,style:"georganiseerd"},
+  Tunisie:{rank:27,att:5.0,def:6.0,style:"defensief"},
+  Belgie:{rank:9,att:7.5,def:6.5,style:"aanvallend"},
+  Egypte:{rank:32,att:5.5,def:5.5,style:"georganiseerd"},
+  Iran:{rank:23,att:5.0,def:6.5,style:"defensief"},
+  "Nieuw-Zeeland":{rank:90,att:4.0,def:5.0,style:"fysiek"},
+  Spanje:{rank:2,att:8.5,def:7.5,style:"bezit"},
+  Kaapverdie:{rank:78,att:4.5,def:5.0,style:"aanvallend"},
+  "Saoedi-Arabie":{rank:56,att:5.0,def:5.5,style:"georganiseerd"},
+  Uruguay:{rank:17,att:6.5,def:7.0,style:"def-counter"},
+  Frankrijk:{rank:1,att:9.0,def:8.0,style:"aanvallend"},
+  Senegal:{rank:14,att:6.5,def:6.5,style:"aanvallend"},
+  Irak:{rank:68,att:4.5,def:4.5,style:"georganiseerd"},
+  Noorwegen:{rank:31,att:7.0,def:5.5,style:"aanvallend"},
+  Argentinie:{rank:3,att:8.5,def:7.5,style:"aanvallend"},
+  Algerije:{rank:44,att:5.5,def:5.5,style:"georganiseerd"},
+  Oostenrijk:{rank:25,att:6.0,def:6.0,style:"pressing"},
+  Jordanie:{rank:69,att:4.0,def:5.0,style:"defensief"},
+  Portugal:{rank:5,att:8.0,def:7.0,style:"aanvallend"},
+  "DR Congo":{rank:52,att:5.5,def:5.0,style:"aanvallend"},
+  Oezbekistan:{rank:63,att:4.5,def:5.0,style:"georganiseerd"},
+  Colombia:{rank:13,att:7.0,def:6.5,style:"aanvallend"},
+  Engeland:{rank:4,att:8.0,def:7.0,style:"aanvallend"},
+  Kroatie:{rank:11,att:6.5,def:7.0,style:"georganiseerd"},
+  Ghana:{rank:60,att:5.0,def:5.0,style:"aanvallend"},
+  Panama:{rank:82,att:4.0,def:5.5,style:"defensief"},
+};
+const DISP={Tsjechie:"Tsjechië",Bosnie:"Bosnië",Brazilie:"Brazilië",Haiti:"Haïti",Australie:"Australië",Curacao:"Curaçao",Tunisie:"Tunesië",Belgie:"België",Kaapverdie:"Kaapverdië","Saoedi-Arabie":"Saoedi-Arabië",Argentinie:"Argentinië",Jordanie:"Jordanië",Kroatie:"Kroatië"};
+const dp=k=>DISP[k]||k;
+const FLAG={Mexico:"🇲🇽","Zuid-Afrika":"🇿🇦","Zuid-Korea":"🇰🇷",Tsjechie:"🇨🇿",Canada:"🇨🇦",Bosnie:"🇧🇦",Qatar:"🇶🇦",Zwitserland:"🇨🇭",Brazilie:"🇧🇷",Marokko:"🇲🇦",Haiti:"🇭🇹",Schotland:"🏴󠁧󠁢󠁳󠁣󠁴󠁿",VS:"🇺🇸",Paraguay:"🇵🇾",Australie:"🇦🇺",Turkije:"🇹🇷",Duitsland:"🇩🇪",Curacao:"🇨🇼",Ivoorkust:"🇨🇮",Ecuador:"🇪🇨",Nederland:"🇳🇱",Japan:"🇯🇵",Zweden:"🇸🇪",Tunisie:"🇹🇳",Belgie:"🇧🇪",Egypte:"🇪🇬",Iran:"🇮🇷","Nieuw-Zeeland":"🇳🇿",Spanje:"🇪🇸",Kaapverdie:"🇨🇻","Saoedi-Arabie":"🇸🇦",Uruguay:"🇺🇾",Frankrijk:"🇫🇷",Senegal:"🇸🇳",Irak:"🇮🇶",Noorwegen:"🇳🇴",Argentinie:"🇦🇷",Algerije:"🇩🇿",Oostenrijk:"🇦🇹",Jordanie:"🇯🇴",Portugal:"🇵🇹","DR Congo":"🇨🇩",Oezbekistan:"🇺🇿",Colombia:"🇨🇴",Engeland:"🏴󠁧󠁢󠁥󠁮󠁧󠁿",Kroatie:"🇭🇷",Ghana:"🇬🇭",Panama:"🇵🇦"};
+const SC={
+  Mexico:[{name:"S. Gimenez",pos:"ST",club:"AC Milan",goals:12,r:8.5},{name:"R. Jimenez",pos:"ST",club:"Fulham",goals:7,r:7.0}],
+  "Zuid-Afrika":[{name:"L. Foster",pos:"ST",club:"Burnley",goals:5,r:7.0},{name:"E. Makgopa",pos:"ST",club:"Orlando Pirates",goals:6,r:6.5}],
+  "Zuid-Korea":[{name:"Son Heung-min",pos:"LW",club:"Tottenham",goals:14,r:8.5},{name:"Cho Gue-sung",pos:"ST",club:"Mainz",goals:6,r:7.0}],
+  Tsjechie:[{name:"P. Schick",pos:"ST",club:"B. Leverkusen",goals:10,r:8.0},{name:"A. Hlozek",pos:"AM",club:"B. Leverkusen",goals:7,r:7.0}],
+  Canada:[{name:"J. David",pos:"ST",club:"Lille",goals:26,r:9.0},{name:"C. Larin",pos:"ST",club:"Club Brugge",goals:8,r:7.0}],
+  Bosnie:[{name:"E. Demirovic",pos:"ST",club:"Stuttgart",goals:9,r:7.5},{name:"E. Dzeko",pos:"ST",club:"Schalke 04",goals:5,r:7.0}],
+  Qatar:[{name:"A. Afif",pos:"LW",club:"Al-Sadd",goals:8,r:7.5},{name:"A. Ali",pos:"ST",club:"Al-Duhail",goals:6,r:7.0}],
+  Zwitserland:[{name:"B. Embolo",pos:"ST",club:"Monaco",goals:8,r:7.5},{name:"R. Vargas",pos:"LW",club:"Augsburg",goals:6,r:7.0}],
+  Brazilie:[{name:"Vinicius Jr.",pos:"LW",club:"Real Madrid",goals:15,r:9.5},{name:"Estevao",pos:"RW",club:"Chelsea",goals:10,r:8.5}],
+  Marokko:[{name:"Y. En-Nesyri",pos:"ST",club:"Fenerbahce",goals:14,r:8.5},{name:"H. Ziyech",pos:"AM",club:"Galatasaray",goals:8,r:7.5}],
+  Haiti:[{name:"F. Pierrot",pos:"ST",club:"San Jose EQ",goals:4,r:6.0},{name:"D. Nazon",pos:"ST",club:"Lens",goals:3,r:5.5}],
+  Schotland:[{name:"L. Shankland",pos:"ST",club:"Hearts",goals:8,r:7.0},{name:"L. Dykes",pos:"ST",club:"QPR",goals:6,r:6.5}],
+  VS:[{name:"C. Pulisic",pos:"AM",club:"AC Milan",goals:10,r:8.5},{name:"F. Balogun",pos:"ST",club:"Crystal Palace",goals:8,r:7.5}],
+  Paraguay:[{name:"M. Almiron",pos:"AM",club:"Palmeiras",goals:6,r:7.0},{name:"A. Sanabria",pos:"ST",club:"Getafe",goals:5,r:6.5}],
+  Australie:[{name:"N. Irankunda",pos:"LW",club:"Bayern",goals:5,r:7.5},{name:"M. Duke",pos:"ST",club:"Blackburn",goals:6,r:6.5}],
+  Turkije:[{name:"A. Guler",pos:"AM",club:"Real Madrid",goals:11,r:8.5},{name:"K. Akturkoglu",pos:"LW",club:"Galatasaray",goals:8,r:7.5}],
+  Duitsland:[{name:"F. Wirtz",pos:"AM",club:"B. Leverkusen",goals:13,r:9.0},{name:"J. Musiala",pos:"AM",club:"Bayern",goals:12,r:8.5}],
+  Curacao:[{name:"L. Bacuna",pos:"MF",club:"Reading",goals:3,r:5.5},{name:"J. Aloeman",pos:"ST",club:"Jong AZ",goals:3,r:5.0}],
+  Ivoorkust:[{name:"S. Adingra",pos:"LW",club:"Brighton",goals:9,r:7.5},{name:"S. Haller",pos:"ST",club:"Dortmund",goals:8,r:7.5}],
+  Ecuador:[{name:"E. Valencia",pos:"ST",club:"Internacional",goals:6,r:7.0},{name:"M. Caicedo",pos:"MF",club:"Chelsea",goals:3,r:6.0}],
+  Nederland:[{name:"C. Gakpo",pos:"LW",club:"Liverpool",goals:14,r:8.5},{name:"Memphis Depay",pos:"ST",club:"Corinthians",goals:9,r:8.0}],
+  Japan:[{name:"K. Mitoma",pos:"LW",club:"Brighton",goals:11,r:8.0},{name:"T. Minamino",pos:"AM",club:"Monaco",goals:9,r:7.5}],
+  Zweden:[{name:"V. Gyokeres",pos:"ST",club:"Sporting CP",goals:38,r:9.5},{name:"A. Isak",pos:"ST",club:"Newcastle",goals:16,r:8.5}],
+  Tunisie:[{name:"Y. Msakni",pos:"AM",club:"Esperance",goals:5,r:6.5},{name:"A. Ben Slimane",pos:"AM",club:"Brighton",goals:5,r:6.5}],
+  Belgie:[{name:"R. Lukaku",pos:"ST",club:"Napoli",goals:18,r:9.0},{name:"L. Openda",pos:"ST",club:"RB Leipzig",goals:16,r:8.5}],
+  Egypte:[{name:"M. Salah",pos:"RW",club:"Liverpool",goals:17,r:9.5},{name:"M. Mohamed",pos:"ST",club:"Nice",goals:10,r:7.5}],
+  Iran:[{name:"M. Taremi",pos:"ST",club:"Inter Milan",goals:10,r:8.0},{name:"S. Azmoun",pos:"ST",club:"Fenerbahce",goals:6,r:7.0}],
+  "Nieuw-Zeeland":[{name:"C. Wood",pos:"ST",club:"Nottm Forest",goals:12,r:8.0},{name:"M. Garbett",pos:"MF",club:"Nottm Forest",goals:3,r:5.5}],
+  Spanje:[{name:"L. Yamal",pos:"RW",club:"FC Barcelona",goals:13,r:9.0},{name:"N. Williams",pos:"LW",club:"Athletic Club",goals:10,r:8.5}],
+  Kaapverdie:[{name:"R. Mendes",pos:"LW",club:"OH Leuven",goals:6,r:6.5},{name:"J. Tavares",pos:"ST",club:"Dijon",goals:5,r:6.0}],
+  "Saoedi-Arabie":[{name:"S. Al-Dawsari",pos:"LW",club:"Al-Hilal",goals:7,r:7.5},{name:"F. Al-Buraikan",pos:"ST",club:"Al-Fateh",goals:6,r:7.0}],
+  Uruguay:[{name:"D. Nunez",pos:"ST",club:"Liverpool",goals:10,r:8.5},{name:"F. Pellistri",pos:"RW",club:"Man United",goals:6,r:7.0}],
+  Frankrijk:[{name:"K. Mbappe",pos:"ST",club:"Real Madrid",goals:26,r:9.8},{name:"O. Dembele",pos:"RW",club:"PSG",goals:12,r:8.5}],
+  Senegal:[{name:"S. Mane",pos:"LW",club:"Al-Nassr",goals:8,r:8.0},{name:"I. Sarr",pos:"RW",club:"Marseille",goals:9,r:7.5}],
+  Irak:[{name:"A. Hussein",pos:"ST",club:"Wattad",goals:6,r:6.5},{name:"A. Al-Hamadi",pos:"ST",club:"Ipswich",goals:5,r:6.5}],
+  Noorwegen:[{name:"E. Haaland",pos:"ST",club:"Man City",goals:28,r:9.8},{name:"A. Sorloth",pos:"ST",club:"Atletico",goals:12,r:8.0}],
+  Argentinie:[{name:"L. Martinez",pos:"ST",club:"Inter Milan",goals:16,r:9.0},{name:"L. Messi",pos:"AM",club:"Inter Miami",goals:7,r:9.0}],
+  Algerije:[{name:"R. Mahrez",pos:"RW",club:"Al-Ahli",goals:7,r:7.5},{name:"I. Slimani",pos:"ST",club:"Lorient",goals:5,r:6.5}],
+  Oostenrijk:[{name:"M. Sabitzer",pos:"AM",club:"Dortmund",goals:8,r:7.5},{name:"M. Gregoritsch",pos:"ST",club:"Freiburg",goals:9,r:7.5}],
+  Jordanie:[{name:"M. Al-Taamari",pos:"AM",club:"Montpellier",goals:5,r:6.0},{name:"B. Al-Batayneh",pos:"ST",club:"Al-Wehdat",goals:4,r:5.5}],
+  Portugal:[{name:"C. Ronaldo",pos:"ST",club:"Al-Nassr",goals:11,r:8.5},{name:"G. Ramos",pos:"ST",club:"PSG",goals:14,r:8.5}],
+  "DR Congo":[{name:"J. Doku",pos:"LW",club:"Man City",goals:6,r:7.5},{name:"C. Bakambu",pos:"ST",club:"Olympiacos",goals:7,r:7.0}],
+  Oezbekistan:[{name:"E. Shomurodov",pos:"ST",club:"Cagliari",goals:6,r:7.0},{name:"A. Fayzullayev",pos:"AM",club:"PAOK",goals:5,r:6.5}],
+  Colombia:[{name:"L. Diaz",pos:"LW",club:"Liverpool",goals:13,r:9.0},{name:"J. Duran",pos:"ST",club:"Al-Qadsiah",goals:11,r:8.0}],
+  Engeland:[{name:"H. Kane",pos:"ST",club:"Bayern",goals:36,r:9.5},{name:"J. Bellingham",pos:"AM",club:"Real Madrid",goals:14,r:9.0}],
+  Kroatie:[{name:"A. Kramaric",pos:"ST",club:"Hoffenheim",goals:12,r:8.0},{name:"I. Perisic",pos:"LW",club:"Hajduk Split",goals:5,r:7.0}],
+  Ghana:[{name:"A. Semenyo",pos:"RW",club:"Bournemouth",goals:8,r:7.5},{name:"J. Ayew",pos:"ST",club:"Le Havre",goals:6,r:7.0}],
+  Panama:[{name:"I. Diaz",pos:"ST",club:"Sao Paulo",goals:5,r:6.5},{name:"R. Blackburn",pos:"ST",club:"Independiente",goals:4,r:6.0}],
+};
+
+// All 72 group matches — tijden zijn DIRECTE NL-tijden (CEST, geen UTC-conversie)
+// Format: [home, away, nlDateTime (ISO, lokaal), group, matchday, stad]
+// Bron: FIFA officieel speelschema via wk2026voetbal.nl / intikkertje.nl
+const MATCHES=[
+  // GROEP A
+  ["Mexico","Zuid-Afrika","2026-06-11T21:00","A",1,"Mexico-Stad"],
+  ["Zuid-Korea","Tsjechie","2026-06-12T00:00","A",1,"Los Angeles"],
+  ["Tsjechie","Zuid-Afrika","2026-06-16T21:00","A",2,"Houston"],
+  ["Mexico","Zuid-Korea","2026-06-17T18:00","A",2,"Dallas"],
+  ["Tsjechie","Mexico","2026-06-22T21:00","A",3,"Atlanta"],
+  ["Zuid-Afrika","Zuid-Korea","2026-06-22T21:00","A",3,"Seattle"],
+  // GROEP B
+  ["Canada","Bosnie","2026-06-13T00:00","B",1,"Toronto"],
+  ["Qatar","Zwitserland","2026-06-13T03:00","B",1,"Vancouver"],
+  ["Zwitserland","Bosnie","2026-06-17T22:00","B",2,"Boston"],
+  ["Canada","Qatar","2026-06-18T01:00","B",2,"Kansas City"],
+  ["Zwitserland","Canada","2026-06-23T21:00","B",3,"Philadelphia"],
+  ["Bosnie","Qatar","2026-06-23T21:00","B",3,"San Francisco"],
+  // GROEP C
+  ["Brazilie","Marokko","2026-06-13T22:00","C",1,"Los Angeles"],
+  ["Haiti","Schotland","2026-06-14T01:00","C",1,"Houston"],
+  ["Schotland","Marokko","2026-06-18T21:00","C",2,"Atlanta"],
+  ["Brazilie","Haiti","2026-06-19T18:00","C",2,"San Francisco"],
+  ["Schotland","Brazilie","2026-06-24T21:00","C",3,"Dallas"],
+  ["Marokko","Haiti","2026-06-24T21:00","C",3,"Miami"],
+  // GROEP D
+  ["VS","Paraguay","2026-06-13T22:00","D",1,"New York"],
+  ["Australie","Turkije","2026-06-14T01:00","D",1,"Philadelphia"],
+  ["VS","Australie","2026-06-18T22:00","D",2,"Los Angeles"],
+  ["Turkije","Paraguay","2026-06-19T01:00","D",2,"Miami"],
+  ["Turkije","VS","2026-06-24T01:00","D",3,"Seattle"],
+  ["Paraguay","Australie","2026-06-24T01:00","D",3,"Boston"],
+  // GROEP E
+  ["Duitsland","Curacao","2026-06-14T22:00","E",1,"Miami"],
+  ["Ivoorkust","Ecuador","2026-06-15T01:00","E",1,"Dallas"],
+  ["Duitsland","Ivoorkust","2026-06-19T22:00","E",2,"Kansas City"],
+  ["Ecuador","Curacao","2026-06-20T01:00","E",2,"Seattle"],
+  ["Ecuador","Duitsland","2026-06-25T01:00","E",3,"Los Angeles"],
+  ["Curacao","Ivoorkust","2026-06-25T01:00","E",3,"New York"],
+  // GROEP F
+  ["Nederland","Japan","2026-06-14T22:00","F",1,"Dallas"],
+  ["Zweden","Tunisie","2026-06-15T01:00","F",1,"Atlanta"],
+  ["Nederland","Zweden","2026-06-20T19:00","F",2,"Houston"],
+  ["Tunisie","Japan","2026-06-20T22:00","F",2,"San Francisco"],
+  ["Tunisie","Nederland","2026-06-26T01:00","F",3,"Kansas City"],
+  ["Japan","Zweden","2026-06-26T01:00","F",3,"Los Angeles"],
+  // GROEP G
+  ["Belgie","Egypte","2026-06-15T22:00","G",1,"Miami"],
+  ["Iran","Nieuw-Zeeland","2026-06-16T01:00","G",1,"Boston"],
+  ["Belgie","Iran","2026-06-20T22:00","G",2,"New York"],
+  ["Nieuw-Zeeland","Egypte","2026-06-21T01:00","G",2,"Vancouver"],
+  ["Nieuw-Zeeland","Belgie","2026-06-26T21:00","G",3,"Philadelphia"],
+  ["Egypte","Iran","2026-06-26T21:00","G",3,"Monterrey"],
+  // GROEP H
+  ["Spanje","Kaapverdie","2026-06-16T22:00","H",1,"Atlanta"],
+  ["Saoedi-Arabie","Uruguay","2026-06-17T01:00","H",1,"New York"],
+  ["Spanje","Saoedi-Arabie","2026-06-21T22:00","H",2,"Dallas"],
+  ["Uruguay","Kaapverdie","2026-06-22T01:00","H",2,"Los Angeles"],
+  ["Uruguay","Spanje","2026-06-27T21:00","H",3,"Kansas City"],
+  ["Kaapverdie","Saoedi-Arabie","2026-06-27T21:00","H",3,"Philadelphia"],
+  // GROEP I
+  ["Frankrijk","Senegal","2026-06-16T22:00","I",1,"Philadelphia"],
+  ["Irak","Noorwegen","2026-06-17T01:00","I",1,"Seattle"],
+  ["Noorwegen","Senegal","2026-06-21T22:00","I",2,"Boston"],
+  ["Frankrijk","Irak","2026-06-22T01:00","I",2,"San Francisco"],
+  ["Senegal","Irak","2026-06-27T01:00","I",3,"Houston"],
+  ["Noorwegen","Frankrijk","2026-06-27T01:00","I",3,"Atlanta"],
+  // GROEP J
+  ["Argentinie","Algerije","2026-06-15T22:00","J",1,"Los Angeles"],
+  ["Oostenrijk","Jordanie","2026-06-16T01:00","J",1,"Houston"],
+  ["Argentinie","Oostenrijk","2026-06-21T01:00","J",2,"Monterrey"],
+  ["Jordanie","Algerije","2026-06-21T01:00","J",2,"Toronto"],
+  ["Algerije","Oostenrijk","2026-06-26T01:00","J",3,"Miami"],
+  ["Jordanie","Argentinie","2026-06-26T01:00","J",3,"Vancouver"],
+  // GROEP K
+  ["Portugal","DR Congo","2026-06-15T22:00","K",1,"Kansas City"],
+  ["Oezbekistan","Colombia","2026-06-16T01:00","K",1,"Seattle"],
+  ["Portugal","Oezbekistan","2026-06-21T22:00","K",2,"Los Angeles"],
+  ["Colombia","DR Congo","2026-06-22T01:00","K",2,"Philadelphia"],
+  ["Colombia","Portugal","2026-06-27T01:00","K",3,"Boston"],
+  ["DR Congo","Oezbekistan","2026-06-27T01:00","K",3,"Dallas"],
+  // GROEP L
+  ["Engeland","Kroatie","2026-06-16T22:00","L",1,"San Francisco"],
+  ["Ghana","Panama","2026-06-17T01:00","L",1,"Monterrey"],
+  ["Engeland","Ghana","2026-06-22T01:00","L",2,"Houston"],
+  ["Panama","Kroatie","2026-06-22T01:00","L",2,"Miami"],
+  ["Panama","Engeland","2026-06-27T21:00","L",3,"New York"],
+  ["Kroatie","Ghana","2026-06-27T21:00","L",3,"Kansas City"],
+];
+
+// KO_TEMPLATE — bijgewerkt 6 juli 2026, 92/104 gespeeld
+// result: [homeScore, awayScore] na 90 min; winner: doorgedrongen team
+// note: "pen." = via penalty's na verlengingen
+const KO_TEMPLATE=[
+  // ── RONDE VAN 32 — alle 16 gespeeld ──
+  {id:"r32-01",date:"2026-06-28T21:00",h:"Zuid-Afrika",a:"Canada",     stad:"Los Angeles",  round:"R32",nr:73, result:[0,1],winner:"Canada"},
+  {id:"r32-02",date:"2026-06-29T19:00",h:"Brazilie",   a:"Japan",      stad:"Houston",      round:"R32",nr:76, result:[2,1],winner:"Brazilie"},
+  {id:"r32-03",date:"2026-06-29T22:30",h:"Duitsland",  a:"Paraguay",   stad:"Boston",       round:"R32",nr:74, result:[1,1],winner:"Paraguay",  note:"pen."},
+  {id:"r32-04",date:"2026-06-30T03:00",h:"Nederland",  a:"Marokko",    stad:"Monterrey",    round:"R32",nr:75, result:[1,1],winner:"Marokko",    note:"pen."},
+  {id:"r32-05",date:"2026-06-30T19:00",h:"Ivoorkust",  a:"Noorwegen",  stad:"Dallas",       round:"R32",nr:78, result:[1,2],winner:"Noorwegen"},
+  {id:"r32-06",date:"2026-06-30T23:00",h:"Frankrijk",  a:"Zweden",     stad:"New York",     round:"R32",nr:77, result:[3,0],winner:"Frankrijk"},
+  {id:"r32-07",date:"2026-07-01T03:00",h:"Mexico",     a:"Ecuador",    stad:"Mexico-Stad",  round:"R32",nr:79, result:[2,0],winner:"Mexico"},
+  {id:"r32-08",date:"2026-07-01T18:00",h:"Engeland",   a:"DR Congo",   stad:"Atlanta",      round:"R32",nr:80, result:[2,1],winner:"Engeland"},
+  {id:"r32-09",date:"2026-07-01T22:00",h:"Belgie",     a:"Senegal",    stad:"Seattle",      round:"R32",nr:82, result:[3,2],winner:"Belgie"},
+  {id:"r32-10",date:"2026-07-02T02:00",h:"VS",         a:"Bosnie",     stad:"San Francisco",round:"R32",nr:81, result:[2,0],winner:"VS"},
+  {id:"r32-11",date:"2026-07-02T21:00",h:"Spanje",     a:"Oostenrijk", stad:"Los Angeles",  round:"R32",nr:84, result:[3,0],winner:"Spanje"},
+  {id:"r32-12",date:"2026-07-03T01:00",h:"Portugal",   a:"Kroatie",    stad:"Toronto",      round:"R32",nr:83, result:[2,1],winner:"Portugal"},
+  {id:"r32-13",date:"2026-07-03T05:00",h:"Zwitserland",a:"Algerije",   stad:"Vancouver",    round:"R32",nr:85, result:[2,0],winner:"Zwitserland"},
+  {id:"r32-14",date:"2026-07-03T20:00",h:"Australie",  a:"Egypte",     stad:"Dallas",       round:"R32",nr:88, result:[1,1],winner:"Egypte",     note:"pen."},
+  {id:"r32-15",date:"2026-07-04T00:00",h:"Argentinie", a:"Kaapverdie", stad:"Miami",        round:"R32",nr:86, result:[3,2],winner:"Argentinie"},
+  {id:"r32-16",date:"2026-07-04T03:30",h:"Colombia",   a:"Ghana",      stad:"Kansas City",  round:"R32",nr:87, result:[1,0],winner:"Colombia"},
+  // ── ACHTSTE FINALES — 4 gespeeld, 4 nog te spelen ──
+  {id:"r16-01",date:"2026-07-04T19:00",h:"Canada",     a:"Marokko",    stad:"Houston",      round:"R16",nr:90, result:[0,3],winner:"Marokko"},
+  {id:"r16-02",date:"2026-07-04T23:00",h:"Paraguay",   a:"Frankrijk",  stad:"Philadelphia", round:"R16",nr:89, result:[0,1],winner:"Frankrijk"},
+  {id:"r16-03",date:"2026-07-05T22:00",h:"Brazilie",   a:"Noorwegen",  stad:"New York",     round:"R16",nr:91, result:[1,2],winner:"Noorwegen"},
+  {id:"r16-04",date:"2026-07-06T02:00",h:"Mexico",     a:"Engeland",   stad:"Mexico-Stad",  round:"R16",nr:92, result:[2,3],winner:"Engeland"},
+  {id:"r16-05",date:"2026-07-06T21:00",h:"Portugal",   a:"Spanje",     stad:"Dallas",       round:"R16",nr:93, result:null, winner:null},
+  {id:"r16-06",date:"2026-07-07T02:00",h:"VS",         a:"Belgie",     stad:"Seattle",      round:"R16",nr:94, result:null, winner:null},
+  {id:"r16-07",date:"2026-07-07T18:00",h:"Argentinie", a:"Egypte",     stad:"Atlanta",      round:"R16",nr:95, result:null, winner:null},
+  {id:"r16-08",date:"2026-07-07T22:00",h:"Zwitserland",a:"Colombia",   stad:"Vancouver",    round:"R16",nr:96, result:null, winner:null},
+  // ── KWARTFINALES — 2 bekend, 2 TBD ──
+  {id:"qf-01",date:"2026-07-09T22:00",h:"Frankrijk",   a:"Marokko",    stad:"Boston",       round:"QF", nr:97, result:null, winner:null},
+  {id:"qf-02",date:"2026-07-10T21:00",h:null,hd:"Winnaar #93 (Por/Spa)",a:null,ad:"Winnaar #94 (VS/Bel)",stad:"Los Angeles",round:"QF",nr:98,result:null,winner:null},
+  {id:"qf-03",date:"2026-07-11T23:00",h:"Noorwegen",   a:"Engeland",   stad:"Miami",        round:"QF", nr:99, result:null, winner:null},
+  {id:"qf-04",date:"2026-07-12T03:00",h:null,hd:"Winnaar #95 (Arg/Egy)",a:null,ad:"Winnaar #96 (Zwi/Col)",stad:"Kansas City",round:"QF",nr:100,result:null,winner:null},
+  // ── HALVE FINALES ──
+  {id:"sf-01",date:"2026-07-14T21:00",h:null,hd:"Winnaar KF #97 (Fra/Mar)",a:null,ad:"Winnaar KF #98",stad:"Dallas",  round:"SF",nr:101,result:null,winner:null},
+  {id:"sf-02",date:"2026-07-15T21:00",h:null,hd:"Winnaar KF #99 (Noo/Eng)",a:null,ad:"Winnaar KF #100",stad:"Atlanta",round:"SF",nr:102,result:null,winner:null},
+  // ── 3E PLAATS ──
+  {id:"3pl",date:"2026-07-18T23:00",h:null,hd:"Verliezer HF #101",a:null,ad:"Verliezer HF #102",stad:"Miami",round:"3PL",nr:103,result:null,winner:null},
+  // ── FINALE ──
+  {id:"fin",date:"2026-07-19T21:00",h:null,hd:"Winnaar HF #101",a:null,ad:"Winnaar HF #102",stad:"New York/NJ",round:"FIN",nr:104,result:null,winner:null},
+];
+
+// Groups structure (for the groups tab)
+const GROUPS={
+  A:{teams:["Mexico","Zuid-Afrika","Zuid-Korea","Tsjechie"]},
+  B:{teams:["Canada","Bosnie","Qatar","Zwitserland"]},
+  C:{teams:["Brazilie","Marokko","Haiti","Schotland"]},
+  D:{teams:["VS","Paraguay","Australie","Turkije"]},
+  E:{teams:["Duitsland","Curacao","Ivoorkust","Ecuador"]},
+  F:{teams:["Nederland","Japan","Zweden","Tunisie"]},
+  G:{teams:["Belgie","Egypte","Iran","Nieuw-Zeeland"]},
+  H:{teams:["Spanje","Kaapverdie","Saoedi-Arabie","Uruguay"]},
+  I:{teams:["Frankrijk","Senegal","Irak","Noorwegen"]},
+  J:{teams:["Argentinie","Algerije","Oostenrijk","Jordanie"]},
+  K:{teams:["Portugal","DR Congo","Oezbekistan","Colombia"]},
+  L:{teams:["Engeland","Kroatie","Ghana","Panama"]},
+};
+
+// ═══════════ STATE ═══════════
+let cfg={url:localStorage.getItem('wk_url')||'https://v3.football.api-sports.io',key:localStorage.getItem('wk_key')||'',hdr:localStorage.getItem('wk_hdr')||'x-rapidapi-key'};
+let liveData={}, standingsData={}, liveKO=[];
+const openGroups=new Set(['F']), openMatches=new Set();
+let curTab='groups';
+
+// ═══════════ DATE HELPERS ═══════════
+// Alle datum-strings zijn DIRECTE NL-tijden (CEST) — geen UTC, geen conversie nodig.
+// Format: "2026-06-14T22:00" — parsen als lokale tijd.
+const NL_DAGEN=['zondag','maandag','dinsdag','woensdag','donderdag','vrijdag','zaterdag'];
+const NL_MND=['jan','feb','mrt','apr','mei','jun','jul','aug','sep','okt','nov','dec'];
+const NL_MNDL=['januari','februari','maart','april','mei','juni','juli','augustus','september','oktober','november','december'];
+function parseNL(s){
+  const [dp,tp]=(s||'').split('T');
+  const [y,m,d]=dp.split('-').map(Number);
+  const [hh,mm]=(tp||'00:00').split(':').map(Number);
+  return new Date(y,m-1,d,hh,mm); // lokale parse, geen timezone shift
+}
+function toNL(s){
+  const dt=parseNL(s);
+  return `${NL_DAGEN[dt.getDay()]} ${dt.getDate()} ${NL_MND[dt.getMonth()]} · ${String(dt.getHours()).padStart(2,'0')}:${String(dt.getMinutes()).padStart(2,'0')}`;
+}
+function toNLDate(s){
+  const dt=parseNL(s);
+  return `${NL_DAGEN[dt.getDay()]} ${dt.getDate()} ${NL_MNDL[dt.getMonth()]}`;
+}
+function toNLTime(s){
+  const dt=parseNL(s);
+  return `${String(dt.getHours()).padStart(2,'0')}:${String(dt.getMinutes()).padStart(2,'0')}`;
+}
+
+// ═══════════ SCORE ENGINE — MULTI-BRON MODEL ═══════════
+// Vier gewogen bronnen combineren tot één verwachte doelpuntenscores (xG):
+//
+// 1. FIFA-ranking (25%) — structurele teamkwaliteit
+// 2. Aanvals/defensie-scores uit kwalificatiedata (25%) — speelstijl & squad
+// 3. WK 2026 groepsfase vorm (30%) — actuele prestaties op dit toernooi
+//    (goals voor/tegen per wedstrijd, winpercentage)
+// 4. Bookmaker-geïmpliceerde winkansen (20%) — marktconsensus van honderden analisten
+//    omgezet naar verwachte doelpunten via Poisson-calibratie
+//
+// Bron 3 (WK-vorm) wordt 0 voor de groepsfase zelf (nog geen data),
+// en actief voor KO-fase (groepsresultaten bekend).
+//
+// Verwachte goals worden dan afgerond naar meest voorkomende WK-uitslag
+// via een Poisson-geïnspireerde snap-naar-meest-waarschijnlijk methode.
+
+// WK 2026 groepsresultaten — DEFINITIEF na groepsfase (alle 72 gespeeld)
+// Bron: pouletips.nl, bijgewerkt 6 juli 2026
+const WK_FORM={
+  // Groep A — Mexico 1e, Zuid-Afrika 2e
+  Mexico:          {gp:3,w:3,gf:6,ga:0},  // 2-0 ZA, 1-0 KOR, 3-0 TSJ
+  "Zuid-Afrika":   {gp:3,w:1,gf:2,ga:3},  // 0-2, 1-1 TSJ, 1-0 KOR
+  "Zuid-Korea":    {gp:3,w:1,gf:3,ga:3},  // 2-1 TSJ, 0-1 MEX, 0-1 ZA
+  Tsjechie:        {gp:3,w:1,gf:3,ga:5},  // 1-2 KOR, 1-1 ZA, 0-3 MEX
+  // Groep B — Zwitserland 1e, Canada 2e
+  Canada:          {gp:3,w:1,gf:8,ga:3},  // 1-1 BOS, 6-0 QAT, 1-2 ZWI
+  Bosnie:          {gp:3,w:1,gf:4,ga:6},  // 1-1 CAN, 1-4 ZWI, 3-1 QAT
+  Qatar:           {gp:3,w:0,gf:2,ga:9},  // 1-1 ZWI, 0-6 CAN, 1-3 BOS
+  Zwitserland:     {gp:3,w:2,gf:7,ga:3},  // 1-1 QAT, 4-1 BOS, 2-1 CAN
+  // Groep C — Brazilië 1e, Marokko 2e
+  Brazilie:        {gp:3,w:2,gf:7,ga:2},  // 1-1 MAR, 3-0 HTI, 3-0 SCO
+  Marokko:         {gp:3,w:2,gf:6,ga:3},  // 1-1 BRA, 1-0 SCO, 4-2 HTI
+  Haiti:           {gp:3,w:0,gf:2,ga:8},  // 0-1 SCO, 0-3 BRA, 2-4 MAR
+  Schotland:       {gp:3,w:1,gf:1,ga:4},  // 1-0 HTI, 0-1 MAR, 0-3 BRA
+  // Groep D — Turkije 1e, Paraguay 2e
+  VS:              {gp:3,w:1,gf:6,ga:4},  // 4-1 PAR, 2-0 AUS, 2-3 TUR
+  Paraguay:        {gp:3,w:1,gf:1,ga:5},  // 1-4 VS, 1-0 TUR, 0-0 AUS
+  Australie:       {gp:3,w:1,gf:2,ga:2},  // 2-0 TUR, 0-2 VS, 0-0 PAR
+  Turkije:         {gp:3,w:2,gf:4,ga:3},  // 0-2 AUS, 0-1 PAR, 3-2 VS
+  // Groep E — Ivoorkust 1e, Ecuador 2e
+  Duitsland:       {gp:3,w:1,gf:10,ga:4}, // 7-1 CUR, 2-1 IVO, 1-2 ECU
+  Curacao:         {gp:3,w:0,gf:1,ga:9},  // 1-7 DUI, 0-0 ECU, 0-2 IVO
+  Ivoorkust:       {gp:3,w:2,gf:4,ga:2},  // 1-0 ECU, 1-2 DUI, 2-0 CUR — 1e op doelsaldo
+  Ecuador:         {gp:3,w:2,gf:3,ga:2},  // 0-1 IVO, 0-0 CUR, 2-1 DUI
+  // Groep F — Nederland 1e, Japan 2e
+  Nederland:       {gp:3,w:2,gf:10,ga:4}, // 2-2 JPN, 5-1 ZWE, 3-1 TUN
+  Japan:           {gp:3,w:2,gf:5,ga:3},  // 2-2 NED, 4-0 TUN, 1-1 ZWE (door als beste nr2 of gelijkspelregel)
+  Zweden:          {gp:3,w:1,gf:7,ga:7},  // 5-1 TUN, 1-5 NED, 1-1 JPN
+  Tunisie:         {gp:3,w:0,gf:2,ga:10}, // 1-5 ZWE, 0-4 JPN, 1-3 NED
+  // Groep G — België 1e, Egypte 2e
+  Belgie:          {gp:3,w:2,gf:7,ga:2},  // 1-1 EGY, 0-0 IRA, 5-1 NZL
+  Egypte:          {gp:3,w:2,gf:5,ga:3},  // 1-1 BEL, 3-1 NZL, 1-1 IRA
+  Iran:            {gp:3,w:0,gf:3,ga:4},  // 2-2 NZL, 0-0 BEL, 1-1 EGY
+  "Nieuw-Zeeland": {gp:3,w:0,gf:4,ga:10}, // 2-2 IRA, 1-3 EGY, 1-5 BEL
+  // Groep H — Spanje 1e, Uruguay 2e (Kaapverdië beste nr3)
+  Spanje:          {gp:3,w:2,gf:5,ga:1},  // 0-0 KAP, 4-0 SAU, 1-0 URU
+  Kaapverdie:      {gp:3,w:0,gf:2,ga:3},  // 0-0 SPA, 2-2 URU, 0-0 SAU
+  "Saoedi-Arabie": {gp:3,w:0,gf:2,ga:5},  // 1-1 URU, 0-4 SPA, 0-0 KAP
+  Uruguay:         {gp:3,w:1,gf:3,ga:3},  // 1-1 SAU, 2-2 KAP, 0-1 SPA
+  // Groep I — Frankrijk 1e, Noorwegen 2e
+  Frankrijk:       {gp:3,w:3,gf:10,ga:3}, // 3-1 SEN, 3-0 IRA, 4-1 NOO
+  Senegal:         {gp:3,w:1,gf:7,ga:7},  // 1-3 FRA, 2-3 NOO, 5-0 IRA
+  Irak:            {gp:3,w:0,gf:2,ga:11}, // 1-4 NOO, 0-3 FRA, 0-5 SEN
+  Noorwegen:       {gp:3,w:2,gf:8,ga:6},  // 4-1 IRA, 3-2 SEN, 1-4 FRA
+  // Groep J — Argentinië 1e, Algerije 2e
+  Argentinie:      {gp:3,w:3,gf:8,ga:1},  // 3-0 ALG, 2-0 OOS, 3-1 JOR
+  Algerije:        {gp:3,w:1,gf:5,ga:6},  // 0-3 ARG, 2-1 JOR, 3-3 OOS
+  Oostenrijk:      {gp:3,w:1,gf:7,ga:5},  // 3-1 JOR, 0-2 ARG, 3-3 ALG
+  Jordanie:        {gp:3,w:0,gf:3,ga:8},  // 1-3 OOS, 2-0 ALG? nee 1-2, 1-3 ARG
+  // Groep K — Colombia 1e, Portugal 2e
+  Portugal:        {gp:3,w:1,gf:7,ga:2},  // 1-1 CON, 5-0 OEZ, 0-0 COL
+  "DR Congo":      {gp:3,w:1,gf:5,ga:7},  // 1-1 POR, 0-1 COL, 3-1 OEZ
+  Oezbekistan:     {gp:3,w:0,gf:2,ga:9},  // 1-3 COL, 0-5 POR, 1-3 CON
+  Colombia:        {gp:3,w:2,gf:4,ga:1},  // 3-1 OEZ, 1-0 CON, 0-0 POR
+  // Groep L — Engeland 1e, Kroatië 2e
+  Engeland:        {gp:3,w:2,gf:6,ga:3},  // 4-2 KRO, 0-0 GHA, 2-0 PAN
+  Kroatie:         {gp:3,w:2,gf:5,ga:5},  // 2-4 ENG, 1-0 PAN, 2-1 GHA
+  Ghana:           {gp:3,w:1,gf:2,ga:2},  // 1-0 PAN, 0-0 ENG, 1-2 KRO
+  Panama:          {gp:3,w:0,gf:0,ga:5},  // 0-1 GHA, 0-1 KRO, 0-2 ENG
+};
+
+// Bookmaker odds — bijgewerkt 6 juli 2026
+// Bron: pouletips.nl actuele marktodds
+// Format: [homeWin%, draw%, awayWin%]
+const BOOK_ODDS={
+  // ── R32 — alle gespeeld ──
+  "Zuid-Afrika|Canada":    [35,27,38],
+  "Brazilie|Japan":        [60,22,18],
+  "Duitsland|Paraguay":    [62,22,16],
+  "Nederland|Marokko":     [44,30,26],
+  "Ivoorkust|Noorwegen":   [38,27,35],
+  "Frankrijk|Zweden":      [65,20,15],
+  "Mexico|Ecuador":        [43,33,24],
+  "Engeland|DR Congo":     [75,18,7],
+  "Belgie|Senegal":        [44,29,27],
+  "VS|Bosnie":             [69,20,11],
+  "Spanje|Oostenrijk":     [70,20,10],
+  "Portugal|Kroatie":      [52,26,22],
+  "Zwitserland|Algerije":  [50,27,23],
+  "Australie|Egypte":      [40,28,32],
+  "Argentinie|Kaapverdie": [80,13,7],
+  "Colombia|Ghana":        [58,24,18],
+  // ── R16 — gespeeld ──
+  "Canada|Marokko":        [30,27,43],
+  "Paraguay|Frankrijk":    [12,19,69],
+  "Brazilie|Noorwegen":    [46,26,28],
+  "Mexico|Engeland":       [35,25,40],
+  // ── R16 — nog te spelen (odds 6 jul 11:55) ──
+  "Portugal|Spanje":       [23,27,50],  // Spanje groot favoriet
+  "VS|Belgie":             [38,28,35],  // vrijwel gelijkwaardig
+  "Argentinie|Egypte":     [72,18,10],  // Argentinië dominant favoriet
+  "Zwitserland|Colombia":  [35,28,37],  // Colombia licht favoriet
+  // ── QF — bekend ──
+  "Frankrijk|Marokko":     [52,26,22],  // Frankrijk favoriet maar Marokko gevaarlijk
+  "Noorwegen|Engeland":    [38,26,36],  // open duel
+};
+
+function predScore(home,away,md){
+  const h=TEAMS[home],a=TEAMS[away];
+  if(!h||!a)return{hs:1,as:0,conf:"Laag",cc:"#ef4444",lbl:"?",hRank:99,aRank:99,hAtt:5,hDef:5,aAtt:5,aDef:5,sources:"—"};
+
+  // ── BRON 1: FIFA-ranking (25%) ──
+  const rf=Math.max(-2,Math.min(2,(a.rank-h.rank)/25));
+  const rankXg_h=1.3+rf*0.18;
+  const rankXg_a=1.3-rf*0.18;
+
+  // ── BRON 2: Aanval/Defensie-kwaliteitsscores (25%) ──
+  const qdXg_h=(h.att*0.55+(10-a.def)*0.45)/3.6;
+  const qdXg_a=(a.att*0.55+(10-h.def)*0.45)/3.6;
+
+  // ── BRON 3: WK 2026 vorm (30%) ──
+  const hF=WK_FORM[home], aF=WK_FORM[away];
+  let formXg_h=1.3, formXg_a=1.3;
+  if(hF&&hF.gp>0){
+    formXg_h=Math.min(2.8, (hF.gf/hF.gp)*0.8 + (hF.w/hF.gp)*0.5);
+  }
+  if(aF&&aF.gp>0){
+    formXg_a=Math.min(2.8, (aF.gf/aF.gp)*0.8 + (aF.w/aF.gp)*0.5);
+  }
+  // Defensieve correctie: goals tegen per wedstrijd
+  if(hF&&hF.gp>0) formXg_a*=Math.max(0.6, 1-(hF.ga/hF.gp)*0.12);
+  if(aF&&aF.gp>0) formXg_h*=Math.max(0.6, 1-(aF.ga/aF.gp)*0.12);
+
+  // ── BRON 4: Bookmaker-implied xG (20%) ──
+  const bookKey=`${home}|${away}`;
+  const bookKeyRev=`${away}|${home}`;
+  let bookXg_h=1.3, bookXg_a=1.0;
+  const odds=BOOK_ODDS[bookKey]||BOOK_ODDS[bookKeyRev];
+  if(odds){
+    // Converteer winkansen naar xG via calibratie:
+    // 60% winkans ≈ 1.8 xG, 45% ≈ 1.4, 30% ≈ 1.0
+    const [hw,dr,aw]=bookKey===bookKeyRev?[odds[2],odds[1],odds[0]]:odds;
+    bookXg_h=0.3+(hw/100)*2.5;
+    bookXg_a=0.3+(aw/100)*2.5;
+  }
+
+  // ── GEWOGEN COMBINATIE ──
+  const W1=0.25,W2=0.25,W3=0.30,W4=0.20;
+  let xg_h=rankXg_h*W1 + qdXg_h*W2 + formXg_h*W3 + bookXg_h*W4;
+  let xg_a=rankXg_a*W1 + qdXg_a*W2 + formXg_a*W3 + bookXg_a*W4;
+
+  // KO-factor: iets defensiever (historisch 15% minder goals in KO)
+  if(md>=4){xg_h*=0.87;xg_a*=0.87;}
+  // Speeldag 3 groepsfase: tactisch voorzichtiger
+  if(md===3){xg_h*=0.92;xg_a*=0.92;}
+
+  // ── SNAP naar meest waarschijnlijke WK-uitslag via Poisson ──
+  // P(k goals) = e^(-λ) * λ^k / k!
+  function poisson(lambda,k){return Math.exp(-lambda)*Math.pow(lambda,k)/[1,1,2,6,24][k];}
+  function bestScore(lambda){
+    // Vind de meest waarschijnlijke doeltelstand (0-4)
+    let best=0,bestP=0;
+    for(let k=0;k<=4;k++){const p=poisson(lambda,k);if(p>bestP){bestP=p;best=k;}}
+    return best;
+  }
+  let hs=bestScore(xg_h);
+  let as2=bestScore(xg_a);
+  // Voorkom 0-0 (zeldzaam op WK, <4%)
+  if(hs===0&&as2===0){
+    if(xg_h>=xg_a)hs=1;else as2=1;
+  }
+
+  // ── VERTROUWEN ──
+  // Gebaseerd op consensus tussen de vier bronnen
+  const rankDiff=Math.abs(h.rank-a.rank);
+  const hasBook=!!(BOOK_ODDS[bookKey]||BOOK_ODDS[bookKeyRev]);
+  const hasForm=!!(hF&&aF);
+  const sourcesUsed=1+(hasBook?1:0)+(hasForm?1:0);
+  const conf=rankDiff>=40&&hasBook?"Hoog":rankDiff>=20||hasBook?"Matig":"Laag";
+  const cc=conf==="Hoog"?"#22c55e":conf==="Matig"?"#f59e0b":"#ef4444";
+
+  const sd=hs-as2;
+  const lbl=hs===as2?"Gelijkspel":sd>=2?`${dp(home)} dominant`:sd===1?`${dp(home)} nipte fav`:sd===-1?`${dp(away)} nipte fav`:`${dp(away)} dominant`;
+
+  const srcLabel=`Ranking+Kwaliteit+${hasForm?"WK-vorm":"Historisch"}${hasBook?"+Bookmakers":""}`;
+
+  return{hs,as:as2,conf,cc,lbl,hRank:h.rank,aRank:a.rank,hAtt:h.att,hDef:h.def,aAtt:a.att,aDef:a.def,
+    xg_h:xg_h.toFixed(2),xg_a:xg_a.toFixed(2),sources:srcLabel,sourcesUsed};
+}
+
+function calcScorers(home,away,hs,as2){
+  const tot=hs+as2;if(!tot)return null;
+  const hw=hs/tot,aw=as2/tot;
+  const c=[];
+  (SC[home]||[]).forEach((p,i)=>c.push({...p,team:home,flag:FLAG[home]||"🏳",w:hw*p.r*(i?0.55:1)}));
+  (SC[away]||[]).forEach((p,i)=>c.push({...p,team:away,flag:FLAG[away]||"🏳",w:aw*p.r*(i?0.55:1)}));
+  c.sort((a,b)=>b.w-a.w);
+  const tw=c.reduce((s,x)=>s+x.w,0);
+  return c.slice(0,3).map(x=>({...x,pct:Math.round((x.w/tw)*100)}));
+}
+
+// ═══════════ API ═══════════
+async function apiFetch(ep){
+  const h={};h[cfg.hdr]=cfg.key;h['x-rapidapi-host']='v3.football.api-sports.io';
+  const r=await fetch(`${cfg.url}/${ep}`,{headers:h});
+  return r.json();
+}
+async function refreshData(){
+  if(!cfg.key){showSettings();return;}
+  const btn=document.getElementById('rbtn');
+  const st=document.getElementById('status');
+  btn.classList.add('loading');btn.textContent='⏳ Laden...';
+  st.className='';st.textContent='Data ophalen...';
+  try{
+    const d=await apiFetch('fixtures?league=1&season=2026');
+    if(d.errors&&Object.keys(d.errors).length)throw new Error(JSON.stringify(d.errors));
+    processFixtures(d.response||[]);
+    const sd=await apiFetch('standings?league=1&season=2026');
+    processStandings(sd.response||[]);
+    st.className='ok';
+    st.textContent=`✓ ${new Date().toLocaleTimeString('nl-NL',{hour:'2-digit',minute:'2-digit'})} · ${(d.response||[]).length} wedstrijden geladen`;
+    rerenderAll();
+  }catch(e){st.className='err';st.textContent=`✗ ${e.message.slice(0,70)}`;}
+  btn.classList.remove('loading');btn.textContent='🔄 Live';
+}
+
+function processFixtures(fixtures){
+  liveData={};liveKO=[];
+  fixtures.forEach(f=>{
+    const s=f.fixture.status.short;
+    const home=f.teams.home.name,away=f.teams.away.name;
+    const hs=f.goals.home,as2=f.goals.away;
+    const round=f.league.round||'';
+    const isKO=round.includes('Round of')||round.includes('Quarter')||round.includes('Semi')||round.includes('Final');
+    const scorers=(f.events||[]).filter(e=>e.type==='Goal'&&e.detail!=='Missed Penalty').map(e=>({name:e.player.name,team:e.team.name,min:e.time.elapsed})).sort((a,b)=>a.min-b.min);
+    const entry={home,away,hs,as:as2,status:s,scorers,round,date:f.fixture.date};
+    liveData[`${home}|${away}`]=entry;
+    if(isKO)liveKO.push(entry);
+  });
+}
+function processStandings(response){
+  standingsData={};
+  response.forEach(league=>{
+    (league.league?.standings||[]).forEach(group=>{
+      group.forEach(row=>{
+        const gn=(row.group||'').replace('Group ','');
+        if(!standingsData[gn])standingsData[gn]=[];
+        standingsData[gn].push({team:row.team.name,pts:row.points,w:row.all.win,dr:row.all.draw,l:row.all.lose,gf:row.all.goals.for,ga:row.all.goals.against,rank:row.rank});
+      });
+    });
+  });
+}
+
+// ═══════════ HTML HELPERS ═══════════
+function sbHTML(lbl,h,a){
+  return`<div class="sbl"><span>${h.toFixed(1)}</span><span class="sblc">${lbl}</span><span>${a.toFixed(1)}</span></div><div class="sbt"><div class="sbh"><div class="sbfh" style="width:${h/10*100}%"></div></div><div class="sbd"></div><div class="sba"><div class="sbfa" style="width:${a/10*100}%"></div></div></div>`;
+}
+function scRowHTML(s,rank){
+  const top=rank===0;
+  return`<div class="sc-row${top?" top":""}"><div class="sr${top?" top":""}">${rank+1}</div><span style="font-size:12px">${s.flag}</span><div class="si"><div><span class="sn${top?" top":""}">${s.name}</span> <span class="sc2">${s.pos}·${s.club}</span></div><div class="sb2"><div class="sb2t"><div class="sb2f${top?" top":""}" style="width:${s.pct}%"></div></div><span class="sp${top?" top":""}">${s.pct}%</span></div></div><span class="sg">⚽${s.goals}</span></div>`;
+}
+
+function matchCardHTML(home,away,md,dateUtc){
+  const pr=predScore(home,away,md);
+  const mid=`${home}|${away}`;
+  const live=liveData[mid];
+  const isOpen=openMatches.has(mid);
+  const isNL=home==="Nederland"||away==="Nederland";
+  const scoreBg=isNL?"linear-gradient(135deg,#7c2d12,#ea580c)":"linear-gradient(135deg,#1d4ed8,#3b82f6)";
+
+  let dhs=pr.hs,das=pr.as,statusPill='',isLive=false,isDone=false;
+  if(live){
+    if(live.hs!==null&&live.hs!==undefined){dhs=live.hs;das=live.as;}
+    const s=live.status;
+    if(['1H','HT','2H','ET','BT','P'].includes(s)){isLive=true;statusPill=`<div class="pill pill-live">🔴 LIVE</div>`;}
+    else if(['FT','AET','PEN'].includes(s)){isDone=true;statusPill=`<div class="pill pill-done">✓ FT</div>`;}
+  }
+  const noGoal=dhs===0&&das===0&&!isDone;
+  const scorers=(!isDone)?calcScorers(home,away,dhs,das):null;
+  const topSc=scorers&&scorers[0]&&!noGoal?`<div class="pill pill-sc">⚽${scorers[0].name.split(" ").pop()}</div>`:"";
+  const dateStr=dateUtc?`<div class="dt-chip">📅 ${toNL(dateUtc)}</div>`:"";
+
+  let det="";
+  if(isOpen){
+    let scContent="";
+    if(isDone&&live?.scorers?.length){
+      scContent=live.scorers.map(s=>`<div class="real-sc"><span class="real-min">${s.min}'</span><span>${FLAG[s.team]||"⚽"}</span><span>${s.name}</span></div>`).join("");
+    } else if(isDone){
+      scContent=`<div class="no-sc">Geen doelpuntendata beschikbaar</div>`;
+    } else if(noGoal){
+      scContent=`<div class="no-sc">0-0 verwacht — geen eerste scorer</div>`;
+    } else {
+      scContent=(scorers||[]).map((s,i)=>scRowHTML(s,i)).join("");
+      scContent+=`<div style="font-size:7px;color:#334155;margin-top:4px">Voorspelling · teamgoals-aandeel × spelerskwaliteit × positiefactor</div>`;
+    }
+    det=`<div class="mc-det"><div class="mc-lbl">${pr.lbl} · Speeldag ${md}</div>
+      <div style="display:flex;justify-content:space-between;font-size:8px;color:#475569;margin-bottom:6px;padding:4px 6px;background:#0a1628;border-radius:5px">
+        <span>xG ${dp(home)}: <strong style="color:#3b82f6">${pr.xg_h}</strong></span>
+        <span style="color:#334155">${pr.sources}</span>
+        <span>xG ${dp(away)}: <strong style="color:#f97316">${pr.xg_a}</strong></span>
+      </div>
+      ${sbHTML("Aanval",pr.hAtt,pr.aAtt)}${sbHTML("Defensie",pr.hDef,pr.aDef)}<div class="sc-blk"><div class="sc-hdr"><span>⚽</span>${isDone?"Doelpuntenmakers":"Eerste scorer voorspelling"}</div>${scContent}</div></div>`;
+  }
+
+  return`<div class="mc${isOpen?" open":""}" onclick="toggleMatch('${mid}')">
+    ${dateStr}
+    <div class="mc-row">
+      <div class="ts"><span class="tf">${FLAG[home]||"🏳"}</span><div><div class="tn">${dp(home)}</div><div class="tm">#${pr.hRank}·${TEAMS[home]?.style||""}</div></div></div>
+      <div class="sb" style="background:${scoreBg}"><span class="st${isLive?" live":""}">${dhs}–${das}</span></div>
+      <div class="ts away"><div><div class="tn">${dp(away)}</div><div class="tm">#${pr.aRank}·${TEAMS[away]?.style||""}</div></div><span class="tf">${FLAG[away]||"🏳"}</span></div>
+      <div class="pills">${statusPill||`<div class="pill" style="background:${pr.cc}22;border:1px solid ${pr.cc};color:${pr.cc}">${pr.conf}</div>`}${!isOpen?topSc:""}</div>
+      <span class="chev">${isOpen?"▲":"▼"}</span>
+    </div>${det}</div>`;
+}
+
+// ═══════════ GROUPS TAB ═══════════
+function groupHTML(gk){
+  const gd=GROUPS[gk];
+  const isOpen=openGroups.has(gk);
+  const isNL=gd.teams.includes("Nederland");
+  const btnBg=isNL?"linear-gradient(135deg,#7c2d12,#ea580c22)":isOpen?"#1e293b":"#0f172a";
+  const btnBorder=isNL?"#f97316":isOpen?"#3b82f6":"#1e293b";
+  const lBg=isNL?"#f97316":"#3b82f6";
+  // Get matches for this group
+  const gMatches=MATCHES.filter(m=>m[3]===gk);
+  let matchesHTML="";
+  if(isOpen){
+    matchesHTML=`<div style="padding-top:8px">${gMatches.map(m=>matchCardHTML(m[0],m[1],m[4],m[2])).join("")}</div>`;
+  }
+  return`<div class="grp-wrap">
+    <button class="grp-btn" style="background:${btnBg};border:1px solid ${btnBorder}" onclick="toggleGroup('${gk}')">
+      <div style="display:flex;align-items:center;gap:8px">
+        <div class="grp-letter" style="background:${lBg}">${gk}</div>
+        <div><div style="font-size:11px;font-weight:700;color:#e2e8f0">${gd.teams.map(t=>FLAG[t]).join(" ")} ${gd.teams.map(dp).join(" · ")}${isNL?" 🟠":""}</div><div style="font-size:8px;color:#64748b">${gMatches.length} wedstrijden${isNL?" · Oranje":""}</div></div>
+      </div>
+      <span style="color:#475569;font-size:12px">${isOpen?"▲":"▼"}</span>
+    </button>
+    ${matchesHTML}</div>`;
+}
+function renderGroups(){
+  const q=(document.getElementById('search')?.value||'').toLowerCase().trim();
+  const c=document.getElementById('gc');
+  const filtered=Object.keys(GROUPS).filter(gk=>{
+    if(!q)return true;
+    const g=GROUPS[gk];
+    if(g.teams.some(t=>dp(t).toLowerCase().includes(q)))return true;
+    if(g.teams.some(t=>(SC[t]||[]).some(p=>p.name.toLowerCase().includes(q))))return true;
+    return false;
+  });
+  if(!filtered.length){c.innerHTML=`<div class="no-res">Niets gevonden voor "${q}"</div>`;return;}
+  c.innerHTML=filtered.map(k=>groupHTML(k)).join('');
+}
+function toggleGroup(gk){if(openGroups.has(gk))openGroups.delete(gk);else openGroups.add(gk);renderGroups();}
+function toggleMatch(mid){if(openMatches.has(mid))openMatches.delete(mid);else openMatches.add(mid);renderGroups();renderChrono();}
+
+// ═══════════ CHRONO TAB ═══════════
+function renderChrono(){
+  const q=(document.getElementById('csearch')?.value||'').toLowerCase().trim();
+  const c=document.getElementById('cc');
+  let matches=[...MATCHES];
+  if(q)matches=matches.filter(m=>dp(m[0]).toLowerCase().includes(q)||dp(m[1]).toLowerCase().includes(q));
+  // Sort by date
+  matches.sort((a,b)=>parseNL(a[2])-parseNL(b[2]));
+  // Group by NL date
+  const byDate={};
+  matches.forEach(m=>{
+    const dk=toNLDate(m[2]);
+    if(!byDate[dk])byDate[dk]=[];
+    byDate[dk].push(m);
+  });
+  if(!Object.keys(byDate).length){c.innerHTML=`<div class="no-res">Niets gevonden voor "${q}"</div>`;return;}
+  c.innerHTML=Object.entries(byDate).map(([dateKey,ms])=>`
+    <div class="date-sep">📅 ${dateKey}</div>
+    ${ms.map(m=>{
+      // Find matchday
+      const fullM=MATCHES.find(x=>x[0]===m[0]&&x[1]===m[1]);
+      return matchCardHTML(m[0],m[1],m[4],m[2]);
+    }).join('')}`).join('');
+}
+
+// ═══════════ STANDINGS TAB ═══════════
+function renderStandings(){
+  const c=document.getElementById('sc');
+  if(!Object.keys(standingsData).length){c.innerHTML=`<div class="no-res">Nog geen live standen. Druk 🔄 Live na 11 juni.</div>`;return;}
+  c.innerHTML=Object.entries(standingsData).sort(([a],[b])=>a.localeCompare(b)).map(([gk,rows])=>`
+    <div class="std-grp"><div class="std-title">Groep ${gk}</div>
+    <table class="std-tbl">
+      <tr><th>#</th><th>Land</th><th>Pnt</th><th>W</th><th>G</th><th>V</th><th>+/-</th></tr>
+      ${rows.sort((a,b)=>b.pts-a.pts).map((r,i)=>`<tr class="${i<2?"q"+(i+1):i===2?"q3":""}">
+        <td><span class="pb" style="background:${i<2?"#16a34a33":i===2?"#f59e0b33":"#1e293b"};color:${i<2?"#4ade80":i===2?"#f59e0b":"#64748b"}">${i+1}</span></td>
+        <td>${FLAG[r.team]||""} ${r.team}</td><td><strong>${r.pts}</strong></td>
+        <td>${r.w}</td><td>${r.dr}</td><td>${r.l}</td><td>${r.gf-r.ga>0?"+":""}${r.gf-r.ga}</td>
+      </tr>`).join("")}
+    </table></div>`).join("");
+}
+
+// ═══════════ BRACKET ═══════════
+function renderBracket(){
+  const rounds=[
+    {key:"R32",label:"Ronde van 32",items:KO_TEMPLATE.filter(x=>x.round==="R32")},
+    {key:"R16",label:"Achtste finale",items:KO_TEMPLATE.filter(x=>x.round==="R16")},
+    {key:"QF",label:"Kwartfinale",items:KO_TEMPLATE.filter(x=>x.round==="QF")},
+    {key:"SF",label:"Halve finale",items:KO_TEMPLATE.filter(x=>x.round==="SF")},
+    {key:"FIN",label:"Finale",items:KO_TEMPLATE.filter(x=>x.round==="FIN")},
+  ];
+
+  let html='<div class="bkt">';
+  rounds.forEach((rnd,ri)=>{
+    html+=`<div class="bkt-rnd"><div class="bkt-lbl">${rnd.label}</div><div class="bkt-ms">`;
+    rnd.items.forEach(slot=>{
+      // Prioriteit: template result > live API
+      const liveMatch=liveKO.find(m=>(slot.h&&(m.home===slot.h||m.away===slot.h)));
+      const done=!!slot.result||(liveMatch&&['FT','AET','PEN'].includes(liveMatch.status));
+      const isLive=!done&&(liveMatch&&['1H','HT','2H','ET','BT','P'].includes(liveMatch.status));
+
+      const hKey=slot.h||null;
+      const aKey=slot.a||null;
+      const hName=hKey?dp(hKey):(slot.hd||"?");
+      const aName=aKey?dp(aKey):(slot.ad||"?");
+      const hFlag=hKey?(FLAG[hKey]||"🏳"):"🔵";
+      const aFlag=aKey?(FLAG[aKey]||"🏳"):"🔵";
+      const isNL=hKey==="Nederland"||aKey==="Nederland";
+      const isTBD=!hKey&&!aKey;
+
+      // Score
+      let hScore="–", aScore="–", statusLabel="";
+      if(slot.result){
+        hScore=slot.result[0];
+        aScore=slot.result[1];
+        statusLabel=slot.note?`✓ FT (${slot.note})`:"✓ FT";
+      } else if(isLive){
+        hScore=liveMatch.hs;aScore=liveMatch.as;
+        statusLabel="🔴 LIVE";
+      }
+
+      const hWon=done&&slot.winner===hKey;
+      const aWon=done&&slot.winner===aKey;
+
+      // Voorspelling indien niet gespeeld en teams bekend
+      let predNote="";
+      if(!done&&!isLive&&hKey&&aKey&&TEAMS[hKey]&&TEAMS[aKey]){
+        const pr=predScore(hKey,aKey,4);
+        hScore=pr.hs;aScore=pr.as;
+        const sc=calcScorers(hKey,aKey,pr.hs,pr.as);
+        const top=sc&&sc[0];
+        predNote=`<div style="font-size:7px;color:#16a34a;margin-top:2px">📊 ${pr.hs}–${pr.as}${top?` · ⚽${top.name.split(" ").pop()}`:""}</div>`;
+        statusLabel="📊 voorspelling";
+        hScore="~"+pr.hs;aScore="~"+pr.as;
+      }
+
+      html+=`<div class="bm${isNL?" nl":""}${done?" done":isTBD?" tbd":""}">
+        <div style="font-size:7px;color:#334155;margin-bottom:2px">#${slot.nr} · ${toNL(slot.date)} · ${slot.stad}</div>
+        <div class="bmt${hWon?" won":aWon?" lost":""}">
+          <span class="bmf">${hFlag}</span>
+          <span class="bmn">${hName}</span>
+          <span class="bms" style="${hWon?"color:#4ade80":""}${aWon?"color:#475569":""}">${done?slot.result[0]:isLive?liveMatch.hs:hKey&&aKey&&TEAMS[hKey]&&TEAMS[aKey]?"~"+predScore(hKey,aKey,4).hs:"–"}</span>
+        </div>
+        <div class="bmdv"></div>
+        <div class="bmt${aWon?" won":hWon?" lost":""}">
+          <span class="bmf">${aFlag}</span>
+          <span class="bmn">${aName}</span>
+          <span class="bms" style="${aWon?"color:#4ade80":""}${hWon?"color:#475569":""}">${done?slot.result[1]:isLive?liveMatch.as:hKey&&aKey&&TEAMS[hKey]&&TEAMS[aKey]?"~"+predScore(hKey,aKey,4).as:"–"}</span>
+        </div>
+        ${predNote}
+        <div style="font-size:7px;margin-top:2px;color:${done?"#22c55e":isLive?"#ef4444":"#334155"}">${statusLabel}</div>
+      </div>`;
+    });
+    html+=`</div></div>`;
+    if(ri<rounds.length-1){
+      html+=`<div class="bconn">${rnd.items.map(()=>`<div class="bconn-line"></div>`).join('')}</div>`;
+    }
+  });
+  html+='</div>';
+  document.getElementById('bc').innerHTML=html;
+
+  // KO match list below bracket
+  const listEl=document.getElementById('kolist');
+  const koSlots=KO_TEMPLATE.filter(s=>s.h||s.a);
+  if(koSlots.length){
+    const roundLabel={R32:"Ronde van 32",R16:"Achtste finale",QF:"Kwartfinale",SF:"Halve finale","3PL":"3e Plaats",FIN:"Finale"};
+    listEl.innerHTML=`<div class="sec-lbl" style="margin-top:14px">KO-wedstrijden — details</div>`+
+    koSlots.map(slot=>{
+      const hKey=slot.h||null, aKey=slot.a||null;
+      const hName=hKey?dp(hKey):(slot.hd||"?");
+      const aName=aKey?dp(aKey):(slot.ad||"?");
+      const hFlag=hKey?(FLAG[hKey]||"🏳"):"🔵";
+      const aFlag=aKey?(FLAG[aKey]||"🏳"):"🔵";
+      const isNL=hKey==="Nederland"||aKey==="Nederland";
+      const done=!!slot.result;
+      const scoreBg=isNL?"linear-gradient(135deg,#7c2d12,#ea580c)":"linear-gradient(135deg,#1d4ed8,#3b82f6)";
+
+      let dispH="?", dispA="?", statusPill="", scorerLine="";
+      if(done){
+        dispH=slot.result[0];dispA=slot.result[1];
+        statusPill=`<div class="pill pill-done">✓${slot.note?" "+slot.note:""}</div>`;
+        if(slot.winner) scorerLine=`<div style="font-size:8px;color:#4ade80;margin-top:3px">🏆 Winnaar: ${FLAG[slot.winner]||""} ${dp(slot.winner)}</div>`;
+      } else if(hKey&&aKey&&TEAMS[hKey]&&TEAMS[aKey]){
+        const pr=predScore(hKey,aKey,4);
+        dispH=pr.hs;dispA=pr.as;
+        statusPill=`<div class="pill" style="background:#1e293b;border:1px solid #334155;color:#475569">📊</div>`;
+        const sc=calcScorers(hKey,aKey,pr.hs,pr.as);
+        if(sc&&sc[0]) scorerLine=`<div style="font-size:8px;color:#4ade80;margin-top:3px">⚽ ${sc[0].name} ${sc[0].flag} (${sc[0].pct}%)</div>`;
+      }
+
+      return`<div class="mc" style="${isNL?"border-left:2px solid #f97316":""};margin-bottom:5px">
+        <div style="font-size:8px;color:#475569;margin-bottom:4px">${roundLabel[slot.round]||slot.round} #${slot.nr} · ${toNL(slot.date)} · ${slot.stad}</div>
+        <div class="mc-row">
+          <div class="ts"><span class="tf">${hFlag}</span><div class="tn">${hName}</div></div>
+          <div class="sb" style="background:${scoreBg}">
+            <span class="st">${done||hKey&&aKey&&TEAMS[hKey]&&TEAMS[aKey]?`${dispH}–${dispA}`:"?–?"}</span>
+          </div>
+          <div class="ts away"><div class="tn">${aName}</div><span class="tf">${aFlag}</span></div>
+          <div class="pills">${statusPill}</div>
+        </div>
+        ${scorerLine}
+      </div>`;
+    }).join('');
+  } else {
+    listEl.innerHTML=`<div class="no-res" style="margin-top:8px">KO-fase start 28 juni.</div>`;
+  }
+}
+
+// ═══════════ TABS ═══════════
+function showTab(tab){
+  curTab=tab;
+  const tabs=['groups','chrono','standings','bracket'];
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',tabs[i]===tab));
+  tabs.forEach(t=>{
+    const el=document.getElementById(`tab-${t}`);
+    if(el)el.style.display=t===tab?'':'none';
+  });
+  if(tab==='standings')renderStandings();
+  if(tab==='bracket')renderBracket();
+  if(tab==='chrono')renderChrono();
+}
+function rerenderAll(){
+  renderGroups();
+  if(curTab==='standings')renderStandings();
+  if(curTab==='bracket')renderBracket();
+  if(curTab==='chrono')renderChrono();
+}
+
+// ═══════════ SETTINGS ═══════════
+function showSettings(){
+  document.getElementById('cfg-url').value=cfg.url;
+  document.getElementById('cfg-key').value=cfg.key;
+  document.getElementById('cfg-hdr').value=cfg.hdr;
+  document.getElementById('settings-modal').style.display='flex';
+}
+function closeSettings(){document.getElementById('settings-modal').style.display='none';}
+function saveSettings(){
+  cfg.url=document.getElementById('cfg-url').value.trim().replace(/\/$/,'');
+  cfg.key=document.getElementById('cfg-key').value.trim();
+  cfg.hdr=document.getElementById('cfg-hdr').value.trim();
+  localStorage.setItem('wk_url',cfg.url);
+  localStorage.setItem('wk_key',cfg.key);
+  localStorage.setItem('wk_hdr',cfg.hdr);
+  closeSettings();
+  if(cfg.key)refreshData();
+}
+
+// ═══════════ INIT ═══════════
+if(cfg.key){document.getElementById('status').textContent=`Key ingesteld · Druk 🔄 voor live data`;}
+renderGroups();
+renderChrono();
+renderBracket();
+</script>
+</body>
+</html>

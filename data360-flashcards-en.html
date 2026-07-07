@@ -119,6 +119,35 @@
 </style>
 </head>
 <body>
+<div id="pw-overlay" style="position:fixed;inset:0;background:#0f172a;color:#e2e8f0;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  z-index:9999;font-family:sans-serif;padding:1rem;text-align:center;">
+  <p style="margin-bottom:1rem;">Voer wachtwoord in</p>
+  <input id="pw-input" type="password" style="padding:0.6rem 1rem;border-radius:8px;
+    border:1px solid #475569;background:#1e293b;color:#e2e8f0;font-size:1rem;">
+  <button onclick="checkPw()" style="margin-top:0.8rem;padding:0.6rem 1.2rem;
+    border-radius:8px;border:none;background:#38bdf8;color:#0f172a;font-weight:bold;">
+    Ontgrendel
+  </button>
+  <p id="pw-error" style="color:#f87171;margin-top:0.6rem;display:none;">Onjuist wachtwoord</p>
+</div>
+<script>
+  function checkPw() {
+    const val = document.getElementById('pw-input').value;
+    if (val === "Jefrey1988") {
+      document.getElementById('pw-overlay').style.display = 'none';
+      sessionStorage.setItem('pw-ok', 'true');
+    } else {
+      document.getElementById('pw-error').style.display = 'block';
+    }
+  }
+  if (sessionStorage.getItem('pw-ok') === 'true') {
+    document.getElementById('pw-overlay').style.display = 'none';
+  }
+  document.getElementById('pw-input').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') checkPw();
+  });
+</script>
 
 <div class="header">
   <div class="eyebrow">Data-Con-101 · Salesforce Certified Data 360 Consultant</div>
