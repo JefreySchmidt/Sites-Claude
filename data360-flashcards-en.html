@@ -128,6 +128,7 @@
   }
   .explain-text{ font-size: 13.5px; line-height:1.55; color: var(--text); }
   .explain-text b{ color: var(--teal); }
+  .explain-text.explain-hidden{ color: var(--muted); font-style: italic; }
 
   .footer-note{ max-width:760px; color:var(--muted); font-size:12px; margin-top:26px; text-align:center; line-height:1.6; }
   kbd{
@@ -400,6 +401,17 @@ function resizeCard(c){
   document.getElementById('card').style.height = finalH + 'px';
 }
 
+function updateExplain(c){
+  const panel = document.getElementById('explainText');
+  if(flipped){
+    panel.innerHTML = c.exp || '';
+    panel.classList.remove('explain-hidden');
+  } else {
+    panel.innerHTML = 'Flip the card to reveal the explanation.';
+    panel.classList.add('explain-hidden');
+  }
+}
+
 function render(){
   if(document.activeElement && document.activeElement.blur){ document.activeElement.blur(); }
   const vis = visibleIndices();
@@ -413,12 +425,17 @@ function render(){
   resizeCard(c);
   document.getElementById('counter').textContent = (idx+1) + ' / ' + vis.length;
   document.getElementById('card').classList.toggle('flipped', flipped);
-  document.getElementById('explainText').innerHTML = c.exp || '';
+  updateExplain(c);
   renderPipeline();
   renderFilterbar();
 }
 
-function flipCard(){ flipped = !flipped; document.getElementById('card').classList.toggle('flipped', flipped); }
+function flipCard(){
+  flipped = !flipped;
+  document.getElementById('card').classList.toggle('flipped', flipped);
+  const vis = visibleIndices();
+  updateExplain(cards[vis[idx]]);
+}
 function nextCard(){ const vis = visibleIndices(); idx = (idx+1) % vis.length; flipped=false; render(); }
 function prevCard(){ const vis = visibleIndices(); idx = (idx-1+vis.length) % vis.length; flipped=false; render(); }
 function markCard(easy, evt){
