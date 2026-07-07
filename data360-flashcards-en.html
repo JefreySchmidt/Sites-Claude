@@ -422,6 +422,8 @@ function shuffleDeck(){
 
 document.getElementById('card').addEventListener('click', flipCard);
 document.addEventListener('keydown', (e)=>{
+  const tag = (e.target && e.target.tagName) || '';
+  if(tag === 'INPUT' || tag === 'TEXTAREA') return;
   if(e.code==='Space'){ e.preventDefault(); flipCard(); }
   if(e.code==='ArrowRight'){ nextCard(); }
   if(e.code==='ArrowLeft'){ prevCard(); }
