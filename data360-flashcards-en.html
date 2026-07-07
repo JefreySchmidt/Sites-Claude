@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data 360 Consultant — Flashcards</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0B1120;
+    --surface: #141B2E;
+    --surface-2: #1B2438;
+    --line: #2A3550;
+    --text: #E4E9F2;
+    --muted: #8B96AC;
+    --teal: #2DD4BF;
+    --amber: #F5A623;
+    --coral: #FB7185;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background: var(--bg);
+    background-image:
+      radial-gradient(circle at 10% 0%, rgba(45,212,191,0.06), transparent 40%),
+      radial-gradient(circle at 90% 100%, rgba(245,166,35,0.05), transparent 40%);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding: 28px 16px 60px;
+  }
+  .header{ width:100%; max-width: 760px; margin-bottom: 22px; }
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--teal); margin-bottom: 6px;
+  }
+  h1{
+    font-family:'Space Grotesk', sans-serif; font-size: clamp(22px, 5vw, 30px);
+    font-weight: 700; margin: 0 0 4px; letter-spacing: -0.01em;
+  }
+  .sub{ color: var(--muted); font-size: 13.5px; }
+
+  .pipeline{ display:flex; gap:4px; margin-top:18px; width:100%; max-width:760px; }
+  .seg{
+    height:8px; border-radius:3px; background: var(--surface-2);
+    position:relative; overflow:hidden; cursor:pointer;
+  }
+  .seg .fill{
+    position:absolute; inset:0; background: var(--teal); transform: scaleX(0);
+    transform-origin:left; transition: transform .25s ease;
+  }
+  .seg.done .fill{ background: #4B5B7A; }
+  .seg-labels{
+    display:flex; width:100%; max-width:760px; margin-top:6px;
+    font-family:'IBM Plex Mono', monospace; font-size:9px; color: var(--muted); gap:4px;
+  }
+  .seg-labels span{ display:block; text-align:left; line-height:1.3; }
+
+  .stage{ width:100%; max-width: 760px; margin-top: 26px; perspective: 1600px; }
+  .card{
+    position:relative; width:100%; min-height: 270px;
+    transform-style: preserve-3d; transition: transform .5s cubic-bezier(.4,.2,.2,1);
+    cursor:pointer;
+  }
+  .card.flipped{ transform: rotateY(180deg); }
+  .face{
+    position:absolute; inset:0; backface-visibility:hidden; border-radius: 14px;
+    border: 1px solid var(--line); background: linear-gradient(160deg, var(--surface), var(--surface-2));
+    padding: 30px 28px; display:flex; flex-direction:column;
+  }
+  .face.back{ transform: rotateY(180deg); }
+  .tag{
+    font-family:'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing:0.08em;
+    text-transform:uppercase; color: var(--amber); margin-bottom: 14px;
+  }
+  .face.back .tag{ color: var(--teal); }
+  .qtext{ font-family:'Space Grotesk', sans-serif; font-size: 18px; line-height:1.42; font-weight:500; flex:1; }
+  .atext{ font-size: 14.5px; line-height:1.55; color: var(--text); flex:1; }
+  .atext b{ color: var(--teal); }
+  .hint{ font-family:'IBM Plex Mono', monospace; font-size: 10.5px; color: var(--muted); margin-top: 14px; }
+
+  .controls{ width:100%; max-width:760px; display:flex; align-items:center; justify-content:space-between; margin-top: 20px; gap: 10px; }
+  .navgrp{ display:flex; gap:8px; }
+  button{
+    font-family:'Inter', sans-serif; font-size: 13.5px; font-weight:500;
+    background: var(--surface-2); color: var(--text); border: 1px solid var(--line);
+    border-radius: 8px; padding: 10px 14px; cursor:pointer; transition: background .15s, border-color .15s;
+  }
+  button{ -webkit-tap-highlight-color: transparent; outline: none; }
+  @media (hover: hover) and (pointer: fine){
+    button:hover{ border-color:#3D4A6B; }
+  }
+  button:active{ transform: translateY(1px); }
+  button:focus:not(:focus-visible){ outline: none; }
+  button:focus-visible{ outline: 2px solid var(--teal); outline-offset: 2px; }
+  button.primary{ background: rgba(45,212,191,0.12); border-color: rgba(45,212,191,0.4); color: var(--teal); }
+  button.ghost{ background:transparent; }
+  .count{ font-family:'IBM Plex Mono', monospace; font-size:12.5px; color: var(--muted); }
+
+  .difficulty{ display:flex; gap:8px; margin-top: 14px; width:100%; max-width:760px; }
+  .difficulty button{ flex:1; font-size:12.5px; }
+  .difficulty .easy:hover{ border-color: rgba(45,212,191,0.5); color: var(--teal); }
+  .difficulty .hard:hover{ border-color: rgba(251,113,133,0.5); color: var(--coral); }
+
+  .filterbar{ display:flex; flex-wrap:wrap; gap:6px; width:100%; max-width:760px; margin-top:16px; }
+  .filterbar button{ font-size:11.5px; padding:7px 10px; }
+  .filterbar button.on{ border-color: var(--teal); color: var(--teal); background: rgba(45,212,191,0.08); }
+
+  .footer-note{ max-width:760px; color:var(--muted); font-size:12px; margin-top:26px; text-align:center; line-height:1.6; }
+  kbd{
+    font-family:'IBM Plex Mono', monospace; background:var(--surface-2); border:1px solid var(--line);
+    padding:1px 6px; border-radius:4px; font-size:11px;
+  }
+  @media (prefers-reduced-motion: reduce){ .card, .seg .fill { transition: none; } }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="eyebrow">Data-Con-101 · Salesforce Certified Data 360 Consultant</div>
+  <h1>Flashcard Pipeline</h1>
+  <div class="sub">106 cards — full source-question coverage, roughly weighted to exam sections · 60 questions / 105 min / 70% pass</div>
+</div>
+
+<div class="pipeline" id="pipeline"></div>
+<div class="seg-labels" id="segLabels"></div>
+
+<div class="filterbar" id="filterbar"></div>
+
+<div class="stage">
+  <div class="card" id="card">
+    <div class="face front">
+      <div class="tag" id="tagFront">Section</div>
+      <div class="qtext" id="qtext">Loading...</div>
+      <div class="hint">Click to reveal the answer</div>
+    </div>
+    <div class="face back">
+      <div class="tag" id="tagBack">Answer</div>
+      <div class="atext" id="atext">Loading...</div>
+    </div>
+  </div>
+</div>
+
+<div class="difficulty">
+  <button class="hard" onclick="markCard(false, event)">Still shaky</button>
+  <button class="easy" onclick="markCard(true, event)">Got it</button>
+</div>
+
+<div class="controls">
+  <div class="navgrp">
+    <button class="ghost" onclick="prevCard()">← Prev</button>
+    <button class="ghost" onclick="nextCard()">Next →</button>
+  </div>
+  <div class="count" id="counter">1 / 106</div>
+  <button class="primary" onclick="shuffleDeck()">Shuffle</button>
+</div>
+
+<div class="footer-note">
+  <kbd>Space</kbd> flip · <kbd>←</kbd> <kbd>→</kbd> navigate · <kbd>1</kbd> still shaky · <kbd>2</kbd> got it<br>
+  Progress is session-only (resets on reload). Tap a section chip below to filter, or a pipeline segment to jump.
+</div>
+
+<script>
+// Official Data-Con-101 sections with their exam weight (%) — card count is proportional.
+const sections = [
+  {name:"Solution Positioning", weight:14},
+  {name:"Setup & Administration", weight:13},
+  {name:"Source Connection & Ingestion", weight:18},
+  {name:"Harmonization & Unification", weight:17},
+  {name:"Data Enhancements, Sharing & Analysis", weight:18},
+  {name:"Activations & Utilization", weight:20}
+];
+
+const cards = [
+// ---------- Section 0: Solution Positioning (14%) ----------
+{s:0, q:"What's the strategic difference between Data 360 and Marketing Cloud's classic Contact Builder data model?", a:"Contact Builder is scoped to a single Marketing Cloud business unit. Data 360 is a platform-wide layer usable by every Salesforce cloud plus external systems via Zero-Copy — one identity graph instead of siloed marketing data."},
+{s:0, q:"How would you frame Data 360's value proposition to a CFO rather than a marketing stakeholder?", a:"Lead with reduced integration/ETL cost and faster time-to-insight, and tie segmentation/personalization directly to revenue impact — not the unification mechanics themselves."},
+{s:0, q:"What is Data 360's foundational role in generative and predictive AI?", a:"It supplies the trusted, <b>unified, real-time customer context</b> that Agentforce/Einstein ground their outputs on. Without it, prompts lack reliable, customer-specific grounding."},
+{s:0, q:"What's a common terminology trap between 'Data Cloud' and 'Data 360' in current material?", a:"Same underlying product — Salesforce renamed the certification and marketing terms in the Spring '26 release; architecture (DLO, DMO, Data Streams) is unchanged."},
+{s:0, q:"How do you justify Data 360 over a pure data warehouse (e.g. Snowflake alone)?", a:"Data 360 adds an application layer — identity resolution, segmentation, native activation into CRM/Marketing/Service — that a bare warehouse doesn't provide without extra tooling."},
+{s:0, q:"Why is 'identify initial use cases' tested as its own objective rather than folded into config topics?", a:"Positioning an engagement starts with prioritizing one narrow, high-value use case to prove ROI before scaling to enterprise-wide unification — a consulting skill independent of setup."},
+{s:0, q:"What's the distinction between data ethics and data governance?", a:"Ethics concerns fair, non-discriminatory use of data/AI outputs (avoiding proxy bias). Governance concerns the operational controls — consent, access, retention — that enforce ethical use in practice."},
+{s:0, q:"What is Data 360's core value proposition when customer data is scattered across CRM, ecommerce, and support platforms?", a:"Unifying fragmented, siloed data into a single comprehensive customer view — everything else (segmentation, AI, activation) depends on having a trustworthy unified profile first."},
+{s:0, q:"What's the recommended pattern for an organization's first Data 360 use case, to build adoption momentum?", a:"A contained, well-scoped win with a clear business owner — e.g. consolidating Sales/Service/Marketing data into one 360° view for support agents — not a broad, technically risky, org-wide rollout."},
+{s:0, q:"What ethical principle should guide collecting sensitive attributes (age, gender, ethnicity) in a Data 360 implementation?", a:"Data minimization — carefully weigh whether the sensitive attribute is genuinely necessary before collecting it; unnecessary collection raises privacy and regulatory risk."},
+{s:0, q:"Give a Healthcare & Life Sciences use case for Data 360.", a:"Activating a Unified Health Score — aggregating clinical, behavioral, and engagement data into one metric that gives care teams a holistic view of patient wellness and engagement."},
+{s:0, q:"What's an essential step to keep a predictive AI model built on Data 360 data ethical and unbiased?", a:"Audit the training data to identify underrepresented customer segments — if a segment is underrepresented, the model will perform poorly or unfairly for that group."},
+{s:0, q:"What determines Data 360 credit consumption, and why does it matter for solution design?", a:"Credits are consumed by data processing (ingest, transform, unify) and compute (query, activation, AI calls) — not storage alone — so pipeline design directly drives cost."},
+
+// ---------- Section 1: Setup & Administration (13%) ----------
+{s:1, q:"A consultant has the Data 360 Admin permission set in production but can't see the Data 360 Setup menu in a Developer Pro sandbox. What's the fix?", a:"Refresh the sandbox again after Data 360 licenses are active in production — this pulls the correct metadata and license counts across, making Data 360 Setup visible."},
+{s:1, q:"What happens to Data 360 configuration when a Full Sandbox is refreshed?", a:"All metadata — DMO definitions, data streams, identity resolution rules, mappings — is replicated from current production, but ingested records are cleared and must be re-ingested. A refresh copies configuration, not data."},
+{s:1, q:"When deploying a data kit via Change Sets, which component type do you add to the outbound change set?", a:"Data Package Kit Definition — it encapsulates the entire data kit (streams, calculated insights, other config) as one packaged, versionable unit."},
+{s:1, q:"Which standard permission set lets a user create/manage segments and activations, but not touch data model mappings or identity resolution rules?", a:"Data 360 Activation Specialist — full access to Segments and Activations, view-only on Data Streams/DLOs/DMOs/Identity Resolution/Activation Targets, no access to Setup or governance config."},
+{s:1, q:"A company ingests data via the Marketing Cloud Connector. Where must a Right to Be Forgotten / deletion request be submitted?", a:"Through the Consent API — even when Marketing Cloud is the underlying source system, deletion is still handled via Data 360's Consent API, not Marketing Cloud settings."},
+{s:1, q:"What's the standard mechanism for processing a customer's data deletion request in Data 360?", a:"The Consent API — it processes deletion of the Individual record and related DMO data; Profile Explorer is read-only and can't perform deletions."},
+{s:1, q:"What should you tell a customer about scope when a deletion request is submitted via the Consent API?", a:"Requests are submitted per Individual profile — they don't automatically cascade to related records in other connected Salesforce clouds; those need separate requests."},
+{s:1, q:"How do you move a tested data stream + mapping configuration from one Data 360 org to another?", a:"Create a Data Kit — the standard mechanism for packaging and promoting Data 360 configuration (streams, mappings, calculated insights) between orgs."},
+{s:1, q:"A data kit was deployed via an inbound Change Set and shows 'Succeeded', but its streams/insights aren't active yet. What's missing?", a:"The kit must still be installed from the Data 360 Setup menu — deploying via Change Set only moves the metadata definition; installation is what maps and activates the components."},
+{s:1, q:"What mechanism lets different business units share one Data 360 home org while keeping data/metadata logically isolated for governance?", a:"Data Spaces — each business unit gets its own space with separated data, DMOs, segments, and activations; permission sets alone don't provide this isolation."},
+{s:1, q:"How does Data 360 handle a full Right to Be Forgotten request end-to-end?", a:"It deletes the specified Individual record and cascades deletion to all DMOs/DLOs related to that Individual — comprehensive removal across the unified model."},
+{s:1, q:"A custom Salesforce CRM object isn't appearing in the New Data Stream configuration screen. What should you check first?", a:"Whether the View All object permission is enabled on that object in the source CRM org for the integration user — without it, Data 360 can't enumerate the object; this isn't a Data 360-side permission issue."},
+{s:1, q:"Which tool would you use to diagnose why a Data Stream refresh is failing silently?", a:"Data Stream run history / ingestion monitoring, which surfaces failed job runs, error codes, and row-level rejection reasons."},
+
+// ---------- Section 2: Source Connection & Ingestion (18%) ----------
+{s:2, q:"What's the required first step when setting up a zero-copy federation connection with a partner like Snowflake?", a:"Establish a named connection in Data 360 Setup using the provider's credentials — without an active connection you can't create a data stream or configure any federation pattern."},
+{s:2, q:"What does Data 360's Web and Mobile Application Connector auto-generate when it's configured?", a:"A Tenant Specific Endpoint — the URL developers use to send SDK event data to the correct Data 360 instance; the schema itself is not auto-created."},
+{s:2, q:"A source field mixes yyyy-mm-dd and yyyy-mm-dd hh:mm:ss values, but the target DMO field is typed as Date. What happens?", a:"Only the date portion is stored; the time component is discarded — type coercion drops precision when the target type is less precise than the source."},
+{s:2, q:"What's the main reason to add a Secondary Index to a Data Lake Object?", a:"To enable efficient querying on non-primary-key attributes (e.g. email, customer ID) — without it, filtering on non-primary-key fields requires a full scan of the DLO."},
+{s:2, q:"How does zero-copy data federation differ from traditional ingestion?", a:"Federation reads data directly from the external provider in place, without moving or copying it into Data 360 storage — contrasted with ingestion, which physically copies data in."},
+{s:2, q:"What is the role of the manifest file in Azure Blob Storage file federation?", a:"It defines metadata and file paths that identify which files belong to the data stream and tracks updates between runs — without it, Data 360 can't determine which files to read or detect incremental changes."},
+{s:2, q:"What's a good reason to use a formula (vs. a heavier transform) when configuring a data stream?", a:"Simple, row-level operations — e.g. converting a datetime field to a date field to match the target DMO type — formulas don't handle multi-row joins or dedup."},
+{s:2, q:"When is it preferred to use a Formula over a Transform in Data 360?", a:"For simple row-level arithmetic or string manipulation applied per row during ingestion; multi-row joins, cross-source aggregation, or reusable complex logic call for a Transform/Calculated Insight instead."},
+{s:2, q:"What field type should you choose to preserve leading zeros in a purchase order number?", a:"Text — Number and Decimal types strip leading zeros because they store the numeric value, not the formatted string."},
+{s:2, q:"What's true about the Salesforce CRM Connector's batch ingestion behavior when a mapped object's schema changes?", a:"It performs a <b>full refresh</b> whenever a column is added or removed — schema changes invalidate the existing DLO structure and require a full re-sync. A separate incremental-refresh threshold applies specifically to deletion record volume."},
+{s:2, q:"For heavy, periodic analytics on a large historical Snowflake parquet dataset with no real-time requirement, which federation pattern fits?", a:"File Federation — uses open standards (Iceberg/Parquet) to access files directly without copying, optimized for high-throughput batch analytics on large historical data."},
+{s:2, q:"For analytical queries running several times per hour against an external Redshift table with no real-time need, which federation approach balances performance and cost?", a:"Cached (Accelerated) Query Federation — caches and refreshes external data for efficient repeat querying; Live Query would hit the external compute engine on every request and cost more."},
+{s:2, q:"What does query federation actually do under the hood?", a:"It pushes the SQL query down to the external system's own compute layer (e.g. Snowflake's or Redshift's compute); the external system executes it and returns only results — no bulk data movement."},
+{s:2, q:"A data source has no field that can serve as a unique primary key. What should you do?", a:"Create a composite key by combining two or more source fields via a formula field (typically using CONCAT) to derive a unique value per record."},
+{s:2, q:"Which formula function combines multiple string fields into a single composite key value?", a:"CONCAT — CAST changes data types, COALESCE returns the first non-null value, and COMBINE isn't a valid Data 360 formula function."},
+{s:2, q:"A loyalty custom object holds both hotel and airline point balances in one record, but they need to be tracked as two separate records. What's the recommended approach?", a:"Use a Batch Transform to derive a second DLO from the source DLO, splitting the combined record into two — this avoids modifying the source system and preserves the original data."},
+{s:2, q:"A company wants to bring 2 years of historical B2C Commerce transaction history into Data 360. What's needed beyond the standard connector option?", a:"B2C Commerce Starter Bundles plus a custom extract — the Starter Bundles only ingest recent/current data, not historical records, so a separate custom extract is needed for history."},
+{s:2, q:"What object is the raw, unmodified storage container for source data before any mapping or transformation occurs?", a:"The Data Lake Object (DLO) — it preserves the historical record of the transmission exactly as received from the source system."},
+
+// ---------- Section 3: Harmonization & Unification (17%) ----------
+{s:3, q:"A wealth management firm wants distinct client profiles within families that share an address/phone but have different investment goals. What identity resolution strategy avoids over-merging them?", a:"A match rule combining Individual attributes (name, DOB) with contact point attributes — matching on contact points alone would incorrectly unify distinct family members."},
+{s:3, q:"Modeling a relationship where one Vehicle can be owned by only one Individual, but one Individual can own many Vehicles — what cardinality do you set from Vehicle to Individual?", a:"Many-to-One (N:1) — multiple Vehicle records relate back to a single Individual record."},
+{s:3, q:"A global ecommerce brand has duplicate customer records from a web portal, mobile app, and POS system. What feature links them into one profile?", a:"Matching rules within Identity Resolution, based on shared identifiers (email, phone, loyalty ID) across the three sources."},
+{s:3, q:"Two marketing systems share the same customer identifier for engagement data, but records shouldn't be conflated across systems. What prevents misattribution?", a:"Fully Qualified Keys — they prefix each record's key with its source system identifier, so the same raw ID from two systems isn't treated as one record."},
+{s:3, q:"Identity Resolution is now matching individuals who merely share an email or phone but aren't the same person. What's the correct fix?", a:"Create and run a new, stricter ruleset in parallel, compare results against the old ruleset to validate, then migrate to the stricter one once approved — don't edit the live ruleset directly."},
+{s:3, q:"What does the Source Sequence reconciliation rule actually control?", a:"It sets a priority order for data sources when building attribute values on the Unified Individual (e.g. whether first name comes from CRM or Marketing Cloud) — it doesn't merge records; that's the match rule's job."},
+{s:3, q:"What term describes mapping data where different schemas call the same concept by different names (user/contact/subscriber) into one standard model?", a:"Harmonize — distinct from Unify (merging duplicate records into one profile) and Transform (changing format/values)."},
+{s:3, q:"A related list on a CRM record page isn't showing a custom DMO's data during segment/record-page setup. What's the likely cause?", a:"No relationship is defined between that custom DMO and the DMO being segmented/displayed on (e.g. Individual) — without a join path, the object can't be surfaced."},
+{s:3, q:"What does the Ignore Empty Value option do, and where does it live?", a:"It lives in <b>reconciliation rules</b> (Source Priority / Last Updated types) — when enabled, it skips empty/null source fields instead of letting them overwrite valid existing data. Common exam trap: it's a reconciliation-rule setting, not a match-rule setting."},
+{s:3, q:"What DMO join path is required inside a calculated insight to compute Unified Individual lifetime value from Sales Order data?", a:"Unified Individual → Unified Link Individual → Sales Order — the Unified Link Individual DMO connects unified profiles back to their source Individual records and onward to transactions."},
+{s:3, q:"Refreshed customer data lands via a nightly Data Stream, and a calculated insight depends on it. What's the correct processing order?", a:"Refresh Data Stream → Identity Resolution → Calculated Insight — running the CI before ID resolution/refresh would compute it on stale data."},
+{s:3, q:"Identity Resolution's processed-profile volume in a batch is consistently lower than the total profile volume. Why?", a:"A pre-processing step only sends a profile for (re-)unification if its data has changed since the last run — unchanged profiles are skipped for efficiency."},
+{s:3, q:"A calculated insight is visible when segmenting on Individual but not on Unified Individual. Why?", a:"The CI is missing a relationship/dimension referencing the Unified Individual DMO (directly or via Unified Link Individual) — it was only built relative to Individual."},
+{s:3, q:"Business-specific fields in a source system have no corresponding field in the standard DMOs. What's best practice?", a:"Extend the relevant standard DMO with custom fields rather than creating an entirely new custom DMO — this preserves standard relationships and identity resolution compatibility."},
+{s:3, q:"Two systems both track a shared external Loyalty Program ID for the same customers, but use different internal record IDs. What identity resolution feature links them?", a:"A Party Identification match rule — map the shared external ID (Loyalty Program ID) to the Party Identification DMO with a consistent Identification Name."},
+{s:3, q:"A customer's consolidation rate has recently increased. What ruleset change typically causes this?", a:"A change that increases the number of matched profiles — e.g. adding a new match rule or relaxing match criteria — more source records get merged, raising the consolidation rate."},
+{s:3, q:"Which data model subject area defines revenue/quantity for an opportunity by product family?", a:"Sales Order — it maps Opportunity Product-style transactional data (revenue, quantity, product) into Data 360; Product describes the catalog, Party describes people/orgs."},
+
+// ---------- Section 4: Data Enhancements, Sharing & Analysis (18%) ----------
+{s:4, q:"Which data can a consultant browse in Data Explorer?", a:"Data Lake Objects, Data Model Objects, and Calculated Insights — not raw data source objects (ingestion containers), and not segments/activations, which are outputs rather than queryable data."},
+{s:4, q:"What's the recommended architecture for connecting an externally trained SageMaker churn model into Data 360 without duplicating data?", a:"Einstein Studio's Bring Your Own Model (BYOM) — connects the external model directly so it can score Unified Profiles in place, without moving data out of Data 360's governed environment."},
+{s:4, q:"A retail dashboard needs 'Top 10 Trending Products' from 500M+ weekly engagements, with ≤15-minute freshness and fast load for executives. What architecture fits?", a:"Streaming Insight — supports sub-24-hour windowed aggregations at scale, meeting the low-latency freshness requirement that batch-processed Calculated Insights can't."},
+{s:4, q:"A predictive model is deployed in Einstein Studio. What's the standard way to apply its predictions to a Salesforce business process?", a:"Use the Predict Jobs feature for batch scoring, or call the model via Flow Builder for record-triggered/scheduled automation."},
+{s:4, q:"Once a predictive model's output is activated, where are the resulting scores stored for segmentation/activation use?", a:"As an attribute on a related Data Model Object — typically tied to the Unified Individual — no external storage or re-import needed."},
+{s:4, q:"What's the minimum requirement to build a Calculated Insight in the Visual Insights Builder?", a:"At least one measure (a numeric value to aggregate) and one dimension (a field to group by) — a WHERE clause, SUM function, or multi-DMO join are optional extras."},
+{s:4, q:"What tool lets a consultant run an ad hoc manual SQL query to verify join-key integrity between two DMOs before building segments?", a:"The Data 360 Query Editor — Data Explorer is for browsing, not custom SQL; the Calculated Insights Builder creates insights, not ad hoc queries."},
+{s:4, q:"A consultant picks the wrong data space when creating a Query Editor workspace and can't find the required DMO. What's the fix?", a:"Create a new workspace and select the correct data space that the DMO belongs to — a workspace is tied to one data space at creation."},
+{s:4, q:"In a Data 360 Clean Room collaboration with a partner, what's true about data security?", a:"Each party's raw data stays in its original location — only aggregated, anonymized query results are shared; PII is never automatically decrypted for the consuming party."},
+{s:4, q:"Predicting a dollar amount a customer is likely to spend over the next 12 months — which native Einstein Studio model type fits?", a:"Regression model — predicts a continuous numeric outcome, unlike Binary (yes/no) or Multiclass (discrete category) Classification models."},
+{s:4, q:"Tableau Next needs real-time, multidimensional analytics on a derived 'Net Profit' metric, dynamically filterable by region/period/product. What's the right approach?", a:"Create a calculated field in the Tableau semantic layer — it gives reusable, governed metric definitions Tableau Next can query interactively; SQL-based Calculated Insights are batch and lack that interactive experience."},
+{s:4, q:"A lead architect needs a real-time Customer Health Dashboard in a custom web portal showing recent purchases and a calculated loyalty score. Which API fits best?", a:"The Profile API — optimized for high-speed, low-latency retrieval of unified profile attributes and calculated insights; the Query API is for SQL analytics, not low-latency single-profile lookups."},
+{s:4, q:"A beverage brand and a sports media network run a Clean Room 'segment overlap' analysis. What's required to let results be filtered by Region or Age Group?", a:"The data provider must include those fields as segmentation attributes within the use case template configuration — the consumer can't add fields the provider hasn't exposed."},
+{s:4, q:"A customer service manager worries generative AI will give generic/inaccurate answers without company context. What Data 360 capability grounds the AI in internal data?", a:"Retrieval Augmented Generation (RAG) — retrieves relevant unified customer/business data before generating a response, preventing hallucinated or generic answers."},
+{s:4, q:"How can a customer securely expose unified Data 360 data to an external Snowflake environment in near real time, read-only, with minimal duplication?", a:"Data 360 Data Shares — shares data directly via Snowflake's zero-copy data-sharing mechanism, avoiding ETL, nightly exports, or REST-based re-ingestion."},
+{s:4, q:"A customer wants flexible, near-real-time reporting on Average Time to Close spanning Sales, Service, Marketing, and Commerce Cloud data, filterable by team. What's the right tool?", a:"Calculated Insights — they can join DMOs across multiple clouds, support custom dimensions for team-specific filtering, and surface in Salesforce reports; single-cloud reports and row-level DMO formula fields can't do this."},
+{s:4, q:"What's a critical limitation to communicate about reporting on Calculated Insights?", a:"The data reflects the state as of the last batch-processing run, not the current moment — reports on CIs can show data that's hours or days old depending on the refresh schedule."},
+{s:4, q:"Two tools are recommended together to fully validate identity resolution results on a unified profile. Which two, and why?", a:"Profile Explorer (visual inspection of one Unified Individual's attributes and source records) and Query Editor (SQL-based validation of data values, counts, and join integrity across DMOs)."},
+
+// ---------- Section 5: Activations & Utilization (20%) ----------
+{s:5, q:"Service reps need to see all cases linked to a Unified Individual directly on the Contact record. What native feature achieves this with no custom dev?", a:"Related List Enrichment — surfaces DMO records as related lists on Salesforce CRM record pages."},
+{s:5, q:"A negative-sentiment event from a streaming web source must trigger a high-priority Service Recovery flow with minimal latency. What Data 360 capability achieves near-instantaneous triggering?", a:"Real-time data actions via automation event-triggered flow — Calculated Insights/segments are batch and introduce latency; manual activation requires human intervention."},
+{s:5, q:"Ecommerce activations depend on calculated insights from a nightly file load. How do you guarantee the data is ready before scheduled activations run?", a:"Use Flow to trigger a change data event that forces the data stream refresh, identity resolution, and CI recalculation in sequence before activations fire — scheduling hourly refreshes alone doesn't guarantee readiness in time."},
+{s:5, q:"A segment includes related Sales Order attributes in its activation to Marketing Cloud, but orders older than the 30-day window show up in the payload. Why, and what's the fix?", a:"The segment filter controls membership, not which related records get exported — apply a 30-day date filter directly on the Sales Order DMO within the activation itself."},
+{s:5, q:"How do you build a 'High Value Customers' segment defined as Platinum Loyalty members OR anyone who spent over $55,000?", a:"A nested segment referencing the existing 'Platinum Loyalty' segment, plus a separate container for the spend condition, joined with an OR operator — a waterfall segment would enforce exclusivity instead of OR logic."},
+{s:5, q:"An activation's attribute picker is missing attributes the consultant knows are related to the individual. What's the likely reason?", a:"The desired attributes sit on different relationship paths from the segment root DMO — activations require a single unambiguous join path; restructuring the model or pre-joining via a calculated insight is the fix."},
+{s:5, q:"What's a key requirement for a Flow to act on Data 360 data in near real time via a data action?", a:"The flow must be active, and the user context must have the Data 360 Marketing Admin permission, which grants rights to trigger the platform events the flow subscribes to."},
+{s:5, q:"A promotional segment targets 6-month purchasers, but the business wants to suppress anyone who bought in the last week. What feature does this?", a:"Segmentation exclude rules — they define a sub-population to suppress from an existing segment's results."},
+{s:5, q:"How do you make attribute names in a Cloud File Storage activation match the downstream system's naming convention?", a:"Set preferred attribute names when configuring the activation — this doesn't require renaming fields in the DMO or the data stream itself."},
+{s:5, q:"Where in the pipeline should Contact Point filtering (consent-based) be applied?", a:"At activation setup, not at segment creation — consent needs to be honored at the point of outreach, which is when the activation payload is built."},
+{s:5, q:"A marketing team needs a foundational segment's criteria reused consistently as a building block for future, more refined segments. What's recommended?", a:"Nested segments — future segments reference the foundational one, automatically inheriting its criteria, and any update to it propagates to everything nested on top of it."},
+{s:5, q:"Multiple brand teams need the same monthly-updated exclusion criteria applied consistently across all their segments. Most efficient approach?", a:"A reusable container block with the common criteria — referenced across segments, so a monthly update propagates everywhere automatically, unlike copying segments per brand."},
+{s:5, q:"What's the full pipeline sequence for activating a segment on the Unified Individual object, start to finish?", a:"Data → Data Lake Object → map to Data Model Object → Identity Resolution & Unification → Segmentation → Activation — skipping any step breaks the chain."},
+{s:5, q:"Building a segment for customers who bought black pants — how should Product Color and Product Type attributes from Order Product be arranged?", a:"In a single container — attributes from the same related object that must both be true for the same record need to sit together; separate containers would let each condition match a different record."},
+{s:5, q:"NTO wants RFM (recency/frequency/monetary) scores usable for personalization in Marketing Cloud Engagement. Best approach?", a:"Include the Calculated Insight attribute directly in the activation — no need for SFTP export/import or copy fields."},
+{s:5, q:"A platinum-tier customer visiting investment pages 3+ times in 24 hours should immediately trigger a private-consultation email. What's the right build?", a:"A Streaming Insight with a Data Action to Marketing Cloud Engagement — Calculated Insights are batch and would miss the real-time trigger; even 'rapid publish' segments still carry latency."},
+{s:5, q:"An activation to a Loyalty Cloud target needs a Loyalty Program Tier field that wasn't part of the original segment filter. How do you include it in the payload?", a:"Use Activation Membership to select the Loyalty Program Member DMO and its fields — it lets you pull in related DMOs that weren't part of the original segment criteria."},
+{s:5, q:"NTO wants one distinct record per transaction (not per customer) in a published audience, so 3 purchases = 3 entries. What should the segment be built on?", a:"The Sales Order DMO directly, rather than Unified Individual or Individual — segmenting on the transaction-level object produces one record per transaction."},
+{s:5, q:"What are the three available criteria types when building a Data 360 segment?", a:"Direct attributes, related attributes, and calculated insights — Streaming Insights are not usable in Segment Builder; they're designed for real-time data actions, not static audience segmentation."},
+{s:5, q:"A customer wants a notification whenever an activation fails for a specific segment. What feature handles this?", a:"Activation Alert — purpose-built to notify (email/Slack) on activation failure; reports/dashboards are reactive and need manual checking."},
+
+// ---------- Bonus: previously-trimmed cards, added back so nothing from the source set is missing ----------
+{s:3, q:"What is Identity Resolution, at its core, as a Data 360 feature?", a:"The feature specifically designed to match records across multiple data sources and reconcile conflicting attribute values into a single Unified Individual profile — distinct from Data Cleansing (a preparatory step) or 'Data Consolidation' (not an actual Data 360 feature)."},
+{s:3, q:"A custom Customer_Email__c object on Contact needs to be used for activation. Which DMO should it map to?", a:"Contact Point Email — the standard DMO that activation targets like Marketing Cloud expect when looking for email addresses; mapping to Contact or Individual wouldn't surface it for activation."},
+{s:3, q:"A customer's consolidation rate has recently increased — repeated as a standalone fact. What's the underlying mechanism?", a:"A ruleset change that increases the number of matched profiles (a new match rule, or relaxed match criteria) merges more source records together, which raises the consolidation rate."},
+{s:3, q:"A developer integrating a legacy inventory system and a web store needs both systems' 'Customer Name' field recognized as the same attribute. What component provides that standardized structure?", a:"A Data Model Object (DMO) — mapping both source fields to the same DMO field is what lets two differently-named source fields be recognized as one standard attribute for identity resolution and segmentation."},
+{s:4, q:"A marketer needs to sum all point-based transactions from a historical ledger and a Commerce Cloud stream into one Lifetime Loyalty Points value for segmentation. Which tool?", a:"Calculated Insight — the correct tool for summing, averaging, or aggregating across transactions for use in segmentation (Trailhead is explicit: max/min/sum operators require Calculated Insights, not Batch Transforms)."},
+{s:4, q:"Which tool should users use to visualize and analyze unified customer data in Data 360?", a:"Tableau — Salesforce's native analytics/visualization platform, deeply integrated with Data 360 to build dashboards and explore profiles and calculated insights."},
+{s:5, q:"How should a consultant modify attribute names to match a naming convention required by a Cloud File Storage activation target?", a:"Set preferred attribute names when configuring the activation itself — this changes the output column headers without altering the underlying DMO field names or data stream configuration."}
+];
+
+let order = cards.map((_,i)=>i);
+let idx = 0;
+let flipped = false;
+let progress = new Array(cards.length).fill(null);
+let activeFilter = null; // null = all sections
+
+function visibleIndices(){
+  if(activeFilter===null) return order;
+  return order.filter(ci => cards[ci].s === activeFilter);
+}
+
+function renderFilterbar(){
+  const bar = document.getElementById('filterbar');
+  bar.innerHTML = '';
+  const allBtn = document.createElement('button');
+  allBtn.textContent = 'All sections';
+  allBtn.className = activeFilter===null ? 'on' : '';
+  allBtn.onclick = ()=>{ activeFilter=null; idx=0; flipped=false; render(); };
+  bar.appendChild(allBtn);
+  sections.forEach((sec,i)=>{
+    const b = document.createElement('button');
+    b.textContent = sec.name + ' (' + sec.weight + '%)';
+    b.className = activeFilter===i ? 'on' : '';
+    b.onclick = ()=>{ activeFilter=i; idx=0; flipped=false; render(); };
+    bar.appendChild(b);
+  });
+}
+
+function renderPipeline(){
+  const pipeline = document.getElementById('pipeline');
+  const labels = document.getElementById('segLabels');
+  pipeline.innerHTML = '';
+  labels.innerHTML = '';
+  const vis = visibleIndices();
+  const currentSection = cards[vis[idx]].s;
+  sections.forEach((sec, i)=>{
+    const seg = document.createElement('div');
+    seg.className = 'seg';
+    seg.style.flex = sec.weight; // width proportional to exam weight
+    const sectionCardIdx = cards.map((c,ci)=>({...c,ci})).filter(c=>c.s===i);
+    const doneCount = sectionCardIdx.filter(c=>progress[c.ci]!==null).length;
+    const fill = document.createElement('div');
+    fill.className='fill';
+    fill.style.transform = `scaleX(${doneCount/sectionCardIdx.length})`;
+    if(doneCount===sectionCardIdx.length){ seg.classList.add('done'); }
+    seg.appendChild(fill);
+    seg.onclick = ()=> jumpToSection(i);
+    pipeline.appendChild(seg);
+
+    const lbl = document.createElement('span');
+    lbl.style.flex = sec.weight;
+    lbl.textContent = sec.weight + '%';
+    labels.appendChild(lbl);
+  });
+}
+
+function jumpToSection(sIdx){
+  activeFilter = null;
+  const target = order.findIndex(ci => cards[ci].s === sIdx);
+  if(target !== -1){ idx = target; flipped=false; render(); }
+}
+
+function render(){
+  if(document.activeElement && document.activeElement.blur){ document.activeElement.blur(); }
+  const vis = visibleIndices();
+  if(idx >= vis.length) idx = 0;
+  const c = cards[vis[idx]];
+  document.getElementById('tagFront').textContent = 'Section ' + (c.s+1) + ' · ' + sections[c.s].name;
+  document.getElementById('tagBack').textContent = 'Answer';
+  document.getElementById('qtext').textContent = c.q;
+  document.getElementById('atext').innerHTML = c.a;
+  document.getElementById('counter').textContent = (idx+1) + ' / ' + vis.length;
+  document.getElementById('card').classList.toggle('flipped', flipped);
+  renderPipeline();
+  renderFilterbar();
+}
+
+function flipCard(){ flipped = !flipped; document.getElementById('card').classList.toggle('flipped', flipped); }
+function nextCard(){ const vis = visibleIndices(); idx = (idx+1) % vis.length; flipped=false; render(); }
+function prevCard(){ const vis = visibleIndices(); idx = (idx-1+vis.length) % vis.length; flipped=false; render(); }
+function markCard(easy, evt){
+  const vis = visibleIndices();
+  progress[vis[idx]] = easy;
+  if(evt && evt.target){ evt.target.blur(); }
+  nextCard();
+}
+function shuffleDeck(){
+  for(let i=order.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [order[i],order[j]] = [order[j],order[i]];
+  }
+  idx = 0; flipped = false; render();
+}
+
+document.getElementById('card').addEventListener('click', flipCard);
+document.addEventListener('keydown', (e)=>{
+  if(e.code==='Space'){ e.preventDefault(); flipCard(); }
+  if(e.code==='ArrowRight'){ nextCard(); }
+  if(e.code==='ArrowLeft'){ prevCard(); }
+  if(e.code==='Digit1'){ markCard(false); }
+  if(e.code==='Digit2'){ markCard(true); }
+});
+
+render();
+</script>
+</body>
+</html>
