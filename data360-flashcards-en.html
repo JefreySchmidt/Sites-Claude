@@ -140,6 +140,16 @@
 </head>
 <body>
 
+<div id="gate" style="position:fixed; inset:0; z-index:999; background:#0B1120; display:flex; align-items:center; justify-content:center; padding:20px;">
+  <div style="width:100%; max-width:340px; text-align:center;">
+    <div style="font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:#2DD4BF; margin-bottom:10px;">Data-Con-101</div>
+    <div style="font-family:'Space Grotesk', sans-serif; font-size:20px; font-weight:700; color:#E4E9F2; margin-bottom:20px;">Enter password</div>
+    <input id="gateInput" type="password" placeholder="Password" style="width:100%; box-sizing:border-box; font-family:'Inter', sans-serif; font-size:15px; padding:12px 14px; border-radius:8px; border:1px solid #2A3550; background:#141B2E; color:#E4E9F2; outline:none;">
+    <div id="gateError" style="color:#FB7185; font-size:12.5px; margin-top:10px; min-height:16px;"></div>
+    <button id="gateBtn" style="margin-top:12px; width:100%; font-family:'Inter', sans-serif; font-size:14px; font-weight:500; padding:12px; border-radius:8px; border:1px solid rgba(45,212,191,0.4); background:rgba(45,212,191,0.12); color:#2DD4BF; cursor:pointer;">Unlock</button>
+  </div>
+</div>
+
 <div class="header">
   <div class="eyebrow">Data-Con-101 · Salesforce Certified Data 360 Consultant</div>
   <h1>Flashcard Pipeline</h1>
@@ -471,6 +481,23 @@ window.addEventListener('resize', ()=>{
 });
 
 render();
+
+const GATE_PASSWORD = "Jefrey1988";
+function tryUnlock(){
+  const val = document.getElementById('gateInput').value;
+  if(val === GATE_PASSWORD){
+    document.getElementById('gate').style.display = 'none';
+  } else {
+    document.getElementById('gateError').textContent = 'Incorrect password.';
+    document.getElementById('gateInput').value = '';
+    document.getElementById('gateInput').focus();
+  }
+}
+document.getElementById('gateBtn').addEventListener('click', tryUnlock);
+document.getElementById('gateInput').addEventListener('keydown', (e)=>{
+  if(e.key === 'Enter'){ tryUnlock(); }
+});
+document.getElementById('gateInput').focus();
 </script>
 </body>
 </html>
