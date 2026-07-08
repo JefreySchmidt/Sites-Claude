@@ -677,6 +677,12 @@ function predScore(home,away,md){
   if(hs===0&&as2===0){
     if(xg_h>=xg_a)hs=1;else as2=1;
   }
+  // KO-fase: geen gelijkspel — er moet een winnaar zijn
+  if(md>=4&&hs===as2){
+    if(xg_h>xg_a) hs+=1;
+    else if(xg_a>xg_h) as2+=1;
+    else hs+=1; // marginaal voordeel thuis
+  }
 
   // ── VERTROUWEN ──
   // Gebaseerd op consensus tussen de vier bronnen
@@ -932,6 +938,7 @@ function renderBracket(){
 
       // Score
       let hScore="–", aScore="–", statusLabel="";
+      let pr=null;
       if(slot.result){
         hScore=slot.result[0];
         aScore=slot.result[1];
@@ -947,27 +954,30 @@ function renderBracket(){
       // Voorspelling indien niet gespeeld en teams bekend
       let predNote="";
       if(!done&&!isLive&&hKey&&aKey&&TEAMS[hKey]&&TEAMS[aKey]){
-        const pr=predScore(hKey,aKey,4);
-        hScore=pr.hs;aScore=pr.as;
+        pr=predScore(hKey,aKey,4);
+        hScore=pr.hs; aScore=pr.as;
         const sc=calcScorers(hKey,aKey,pr.hs,pr.as);
         const top=sc&&sc[0];
         predNote=`<div style="font-size:7px;color:#16a34a;margin-top:2px">📊 ${pr.hs}–${pr.as}${top?` · ⚽${top.name.split(" ").pop()}`:""}</div>`;
         statusLabel="📊 voorspelling";
-        hScore="~"+pr.hs;aScore="~"+pr.as;
       }
+
+      // Display score strings
+      const hDisp = slot.result ? slot.result[0] : isLive ? liveMatch.hs : (pr ? "~"+pr.hs : "–");
+      const aDisp = slot.result ? slot.result[1] : isLive ? liveMatch.as : (pr ? "~"+pr.as : "–");
 
       html+=`<div class="bm${isNL?" nl":""}${done?" done":isTBD?" tbd":""}">
         <div style="font-size:7px;color:#334155;margin-bottom:2px">#${slot.nr} · ${toNL(slot.date)} · ${slot.stad}</div>
         <div class="bmt${hWon?" won":aWon?" lost":""}">
           <span class="bmf">${hFlag}</span>
           <span class="bmn">${hName}</span>
-          <span class="bms" style="${hWon?"color:#4ade80":""}${aWon?"color:#475569":""}">${done?slot.result[0]:isLive?liveMatch.hs:hKey&&aKey&&TEAMS[hKey]&&TEAMS[aKey]?"~"+predScore(hKey,aKey,4).hs:"–"}</span>
+          <span class="bms" style="${hWon?"color:#4ade80":""}${aWon?"color:#475569":""}">${hDisp}</span>
         </div>
         <div class="bmdv"></div>
         <div class="bmt${aWon?" won":hWon?" lost":""}">
           <span class="bmf">${aFlag}</span>
           <span class="bmn">${aName}</span>
-          <span class="bms" style="${aWon?"color:#4ade80":""}${hWon?"color:#475569":""}">${done?slot.result[1]:isLive?liveMatch.as:hKey&&aKey&&TEAMS[hKey]&&TEAMS[aKey]?"~"+predScore(hKey,aKey,4).as:"–"}</span>
+          <span class="bms" style="${aWon?"color:#4ade80":""}${hWon?"color:#475569":""}">${aDisp}</span>
         </div>
         ${predNote}
         <div style="font-size:7px;margin-top:2px;color:${done?"#22c55e":isLive?"#ef4444":"#334155"}">${statusLabel}</div>
@@ -1015,7 +1025,7 @@ function renderBracket(){
         <div class="mc-row">
           <div class="ts"><span class="tf">${hFlag}</span><div class="tn">${hName}</div></div>
           <div class="sb" style="background:${scoreBg}">
-            <span class="st">${done||hKey&&aKey&&TEAMS[hKey]&&TEAMS[aKey]?`${dispH}–${dispA}`:"?–?"}</span>
+            <span class="st">${done?`${dispH}–${dispA}`:hKey&&aKey&&TEAMS[hKey]&&TEAMS[aKey]?`${dispH}–${dispA}`:"?–?"}</span>
           </div>
           <div class="ts away"><div class="tn">${aName}</div><span class="tf">${aFlag}</span></div>
           <div class="pills">${statusPill}</div>
