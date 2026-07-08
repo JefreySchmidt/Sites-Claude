@@ -4,6 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Data 360 Consultant — Flashcards</title>
+<script>
+(function(){
+  try{
+    var saved = localStorage.getItem('data360-theme');
+    var theme = saved || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+    document.documentElement.setAttribute('data-theme', theme);
+  }catch(e){}
+})();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -17,6 +26,17 @@
     --teal: #2DD4BF;
     --amber: #F5A623;
     --coral: #FB7185;
+  }
+  :root[data-theme="light"]{
+    --bg: #F3F5FA;
+    --surface: #FFFFFF;
+    --surface-2: #EDF0F8;
+    --line: #D7DCE8;
+    --text: #1A2130;
+    --muted: #64708A;
+    --teal: #0D9488;
+    --amber: #B45309;
+    --coral: #E11D48;
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
@@ -140,15 +160,17 @@
 </head>
 <body>
 
-<div id="gate" style="position:fixed; inset:0; z-index:999; background:#0B1120; display:flex; align-items:center; justify-content:center; padding:20px;">
+<div id="gate" style="position:fixed; inset:0; z-index:999; background:var(--bg); display:flex; align-items:center; justify-content:center; padding:20px;">
   <div style="width:100%; max-width:340px; text-align:center;">
-    <div style="font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:#2DD4BF; margin-bottom:10px;">Data-Con-101</div>
-    <div style="font-family:'Space Grotesk', sans-serif; font-size:20px; font-weight:700; color:#E4E9F2; margin-bottom:20px;">Enter password</div>
-    <input id="gateInput" type="password" placeholder="Password" style="width:100%; box-sizing:border-box; font-family:'Inter', sans-serif; font-size:15px; padding:12px 14px; border-radius:8px; border:1px solid #2A3550; background:#141B2E; color:#E4E9F2; outline:none;">
-    <div id="gateError" style="color:#FB7185; font-size:12.5px; margin-top:10px; min-height:16px;"></div>
-    <button id="gateBtn" style="margin-top:12px; width:100%; font-family:'Inter', sans-serif; font-size:14px; font-weight:500; padding:12px; border-radius:8px; border:1px solid rgba(45,212,191,0.4); background:rgba(45,212,191,0.12); color:#2DD4BF; cursor:pointer;">Unlock</button>
+    <div style="font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:var(--teal); margin-bottom:10px;">Data-Con-101</div>
+    <div style="font-family:'Space Grotesk', sans-serif; font-size:20px; font-weight:700; color:var(--text); margin-bottom:20px;">Enter password</div>
+    <input id="gateInput" type="password" placeholder="Password" style="width:100%; box-sizing:border-box; font-family:'Inter', sans-serif; font-size:15px; padding:12px 14px; border-radius:8px; border:1px solid var(--line); background:var(--surface); color:var(--text); outline:none;">
+    <div id="gateError" style="color:var(--coral); font-size:12.5px; margin-top:10px; min-height:16px;"></div>
+    <button id="gateBtn" style="margin-top:12px; width:100%; font-family:'Inter', sans-serif; font-size:14px; font-weight:500; padding:12px; border-radius:8px; border:1px solid var(--teal); background:var(--surface-2); color:var(--teal); cursor:pointer;">Unlock</button>
   </div>
 </div>
+
+<button id="themeToggle" aria-label="Toggle light/dark theme" style="position:fixed; top:14px; right:14px; z-index:1001; width:40px; height:40px; border-radius:10px; border:1px solid var(--line); background:var(--surface-2); color:var(--text); font-size:17px; cursor:pointer; display:flex; align-items:center; justify-content:center;">🌙</button>
 
 <div class="header">
   <div class="eyebrow">Data-Con-101 · Salesforce Certified Data 360 Consultant</div>
@@ -498,6 +520,32 @@ document.getElementById('gateInput').addEventListener('keydown', (e)=>{
   if(e.key === 'Enter'){ tryUnlock(); }
 });
 document.getElementById('gateInput').focus();
+
+const THEME_KEY = 'data360-theme';
+function currentTheme(){
+  return document.documentElement.getAttribute('data-theme') || 'dark';
+}
+function applyThemeIcon(theme){
+  document.getElementById('themeToggle').textContent = theme === 'light' ? '🌙' : '☀️';
+}
+applyThemeIcon(currentTheme());
+document.getElementById('themeToggle').addEventListener('click', ()=>{
+  const next = currentTheme() === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  try{ localStorage.setItem(THEME_KEY, next); }catch(e){}
+  applyThemeIcon(next);
+});
+try{
+  if(!localStorage.getItem(THEME_KEY)){
+    window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', (e)=>{
+      if(!localStorage.getItem(THEME_KEY)){
+        const t = e.matches ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', t);
+        applyThemeIcon(t);
+      }
+    });
+  }
+}catch(e){}
 </script>
 </body>
 </html>
