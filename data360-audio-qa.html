@@ -203,6 +203,10 @@
     <span id="rateVal">0.95×</span>
   </div>
 
+  <div class="speedrow">
+    <button class="chip" id="wakeToggle" onclick="toggleWakeLock()" style="padding:6px 10px;">💡 Keep screen on</button>
+  </div>
+
   <div class="sections" id="sectionChips"></div>
 </div>
 
@@ -352,6 +356,45 @@ function prevCard(){
 
 document.getElementById('rateSlider').addEventListener('input', (e)=>{
   document.getElementById('rateVal').textContent = parseFloat(e.target.value).toFixed(2) + '×';
+});
+
+let wakeLock = null;
+let wakeLockWanted = false;
+async function toggleWakeLock(){
+  const btn = document.getElementById('wakeToggle');
+  if(!('wakeLock' in navigator)){
+    btn.textContent = '⚠️ Not supported here';
+    setTimeout(()=>{ btn.textContent = '💡 Keep screen on'; }, 2500);
+    return;
+  }
+  if(wakeLock){
+    await wakeLock.release();
+    wakeLock = null;
+    wakeLockWanted = false;
+    btn.textContent = '💡 Keep screen on';
+    btn.classList.remove('active');
+  } else {
+    try{
+      wakeLock = await navigator.wakeLock.request('screen');
+      wakeLockWanted = true;
+      btn.textContent = '💡 Screen staying on';
+      btn.classList.add('active');
+      wakeLock.addEventListener('release', ()=>{
+        wakeLock = null;
+        btn.textContent = '💡 Keep screen on';
+        btn.classList.remove('active');
+      });
+    }catch(err){
+      btn.textContent = '⚠️ Couldn\'t enable';
+      setTimeout(()=>{ btn.textContent = '💡 Keep screen on'; }, 2500);
+    }
+  }
+}
+// Re-acquire the wake lock if the tab regains visibility (browsers auto-release it when hidden/backgrounded)
+document.addEventListener('visibilitychange', async ()=>{
+  if(wakeLockWanted && document.visibilityState === 'visible' && !wakeLock){
+    try{ wakeLock = await navigator.wakeLock.request('screen'); }catch(err){ /* ignore */ }
+  }
 });
 
 document.addEventListener('keydown', (e)=>{

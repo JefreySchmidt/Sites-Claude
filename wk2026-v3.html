@@ -140,35 +140,6 @@ body{background:#020b18;font-family:'Courier New',Courier,monospace;color:#e2e8f
 </style>
 </head>
 <body>
-<div id="pw-overlay" style="position:fixed;inset:0;background:#0f172a;color:#e2e8f0;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  z-index:9999;font-family:sans-serif;padding:1rem;text-align:center;">
-  <p style="margin-bottom:1rem;">Voer wachtwoord in</p>
-  <input id="pw-input" type="password" style="padding:0.6rem 1rem;border-radius:8px;
-    border:1px solid #475569;background:#1e293b;color:#e2e8f0;font-size:1rem;">
-  <button onclick="checkPw()" style="margin-top:0.8rem;padding:0.6rem 1.2rem;
-    border-radius:8px;border:none;background:#38bdf8;color:#0f172a;font-weight:bold;">
-    Ontgrendel
-  </button>
-  <p id="pw-error" style="color:#f87171;margin-top:0.6rem;display:none;">Onjuist wachtwoord</p>
-</div>
-<script>
-  function checkPw() {
-    const val = document.getElementById('pw-input').value;
-    if (val === "Jefrey1988") {
-      document.getElementById('pw-overlay').style.display = 'none';
-      sessionStorage.setItem('pw-ok', 'true');
-    } else {
-      document.getElementById('pw-error').style.display = 'block';
-    }
-  }
-  if (sessionStorage.getItem('pw-ok') === 'true') {
-    document.getElementById('pw-overlay').style.display = 'none';
-  }
-  document.getElementById('pw-input').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') checkPw();
-  });
-</script>
 <div id="hdr">
   <div class="hdr-top">
     <div><span class="logo-wk">WK 2026</span><span class="logo-sub">ALLES-IN-ÉÉN</span></div>
@@ -433,7 +404,7 @@ const MATCHES=[
   ["Kroatie","Ghana","2026-06-27T21:00","L",3,"Kansas City"],
 ];
 
-// KO_TEMPLATE — bijgewerkt 6 juli 2026, 92/104 gespeeld
+// KO_TEMPLATE — bijgewerkt 8 juli 2026, 96/104 gespeeld
 // result: [homeScore, awayScore] na 90 min; winner: doorgedrongen team
 // note: "pen." = via penalty's na verlengingen
 const KO_TEMPLATE=[
@@ -454,23 +425,23 @@ const KO_TEMPLATE=[
   {id:"r32-14",date:"2026-07-03T20:00",h:"Australie",  a:"Egypte",     stad:"Dallas",       round:"R32",nr:88, result:[1,1],winner:"Egypte",     note:"pen."},
   {id:"r32-15",date:"2026-07-04T00:00",h:"Argentinie", a:"Kaapverdie", stad:"Miami",        round:"R32",nr:86, result:[3,2],winner:"Argentinie"},
   {id:"r32-16",date:"2026-07-04T03:30",h:"Colombia",   a:"Ghana",      stad:"Kansas City",  round:"R32",nr:87, result:[1,0],winner:"Colombia"},
-  // ── ACHTSTE FINALES — 4 gespeeld, 4 nog te spelen ──
+  // ── ACHTSTE FINALES — alle 8 gespeeld ──
   {id:"r16-01",date:"2026-07-04T19:00",h:"Canada",     a:"Marokko",    stad:"Houston",      round:"R16",nr:90, result:[0,3],winner:"Marokko"},
   {id:"r16-02",date:"2026-07-04T23:00",h:"Paraguay",   a:"Frankrijk",  stad:"Philadelphia", round:"R16",nr:89, result:[0,1],winner:"Frankrijk"},
   {id:"r16-03",date:"2026-07-05T22:00",h:"Brazilie",   a:"Noorwegen",  stad:"New York",     round:"R16",nr:91, result:[1,2],winner:"Noorwegen"},
   {id:"r16-04",date:"2026-07-06T02:00",h:"Mexico",     a:"Engeland",   stad:"Mexico-Stad",  round:"R16",nr:92, result:[2,3],winner:"Engeland"},
-  {id:"r16-05",date:"2026-07-06T21:00",h:"Portugal",   a:"Spanje",     stad:"Dallas",       round:"R16",nr:93, result:null, winner:null},
-  {id:"r16-06",date:"2026-07-07T02:00",h:"VS",         a:"Belgie",     stad:"Seattle",      round:"R16",nr:94, result:null, winner:null},
-  {id:"r16-07",date:"2026-07-07T18:00",h:"Argentinie", a:"Egypte",     stad:"Atlanta",      round:"R16",nr:95, result:null, winner:null},
-  {id:"r16-08",date:"2026-07-07T22:00",h:"Zwitserland",a:"Colombia",   stad:"Vancouver",    round:"R16",nr:96, result:null, winner:null},
-  // ── KWARTFINALES — 2 bekend, 2 TBD ──
+  {id:"r16-05",date:"2026-07-06T21:00",h:"Portugal",   a:"Spanje",     stad:"Dallas",       round:"R16",nr:93, result:[0,1],winner:"Spanje"},
+  {id:"r16-06",date:"2026-07-07T02:00",h:"VS",         a:"Belgie",     stad:"Seattle",      round:"R16",nr:94, result:[1,4],winner:"Belgie"},
+  {id:"r16-07",date:"2026-07-07T18:00",h:"Argentinie", a:"Egypte",     stad:"Atlanta",      round:"R16",nr:95, result:[3,2],winner:"Argentinie"},
+  {id:"r16-08",date:"2026-07-07T22:00",h:"Zwitserland",a:"Colombia",   stad:"Vancouver",    round:"R16",nr:96, result:[0,0],winner:"Colombia",   note:"pen."},
+  // ── KWARTFINALES — alle 4 bekend, nog niet gespeeld ──
   {id:"qf-01",date:"2026-07-09T22:00",h:"Frankrijk",   a:"Marokko",    stad:"Boston",       round:"QF", nr:97, result:null, winner:null},
-  {id:"qf-02",date:"2026-07-10T21:00",h:null,hd:"Winnaar #93 (Por/Spa)",a:null,ad:"Winnaar #94 (VS/Bel)",stad:"Los Angeles",round:"QF",nr:98,result:null,winner:null},
+  {id:"qf-02",date:"2026-07-10T21:00",h:"Spanje",      a:"Belgie",     stad:"Los Angeles",  round:"QF", nr:98, result:null, winner:null},
   {id:"qf-03",date:"2026-07-11T23:00",h:"Noorwegen",   a:"Engeland",   stad:"Miami",        round:"QF", nr:99, result:null, winner:null},
-  {id:"qf-04",date:"2026-07-12T03:00",h:null,hd:"Winnaar #95 (Arg/Egy)",a:null,ad:"Winnaar #96 (Zwi/Col)",stad:"Kansas City",round:"QF",nr:100,result:null,winner:null},
+  {id:"qf-04",date:"2026-07-12T03:00",h:"Argentinie",  a:"Zwitserland",stad:"Kansas City",  round:"QF", nr:100,result:null, winner:null},
   // ── HALVE FINALES ──
-  {id:"sf-01",date:"2026-07-14T21:00",h:null,hd:"Winnaar KF #97 (Fra/Mar)",a:null,ad:"Winnaar KF #98",stad:"Dallas",  round:"SF",nr:101,result:null,winner:null},
-  {id:"sf-02",date:"2026-07-15T21:00",h:null,hd:"Winnaar KF #99 (Noo/Eng)",a:null,ad:"Winnaar KF #100",stad:"Atlanta",round:"SF",nr:102,result:null,winner:null},
+  {id:"sf-01",date:"2026-07-14T21:00",h:null,hd:"Winnaar KF #97 (Fra/Mar)",a:null,ad:"Winnaar KF #98 (Spa/Bel)",stad:"Dallas",  round:"SF",nr:101,result:null,winner:null},
+  {id:"sf-02",date:"2026-07-15T21:00",h:null,hd:"Winnaar KF #99 (Noo/Eng)",a:null,ad:"Winnaar KF #100 (Arg/Zwi)",stad:"Atlanta",round:"SF",nr:102,result:null,winner:null},
   // ── 3E PLAATS ──
   {id:"3pl",date:"2026-07-18T23:00",h:null,hd:"Verliezer HF #101",a:null,ad:"Verliezer HF #102",stad:"Miami",round:"3PL",nr:103,result:null,winner:null},
   // ── FINALE ──
@@ -605,11 +576,11 @@ const WK_FORM={
   Panama:          {gp:3,w:0,gf:0,ga:5},  // 0-1 GHA, 0-1 KRO, 0-2 ENG
 };
 
-// Bookmaker odds — bijgewerkt 6 juli 2026
+// Bookmaker odds — bijgewerkt 8 juli 2026
 // Bron: pouletips.nl actuele marktodds
 // Format: [homeWin%, draw%, awayWin%]
 const BOOK_ODDS={
-  // ── R32 — alle gespeeld ──
+  // ── R32 — alle 16 gespeeld ──
   "Zuid-Afrika|Canada":    [35,27,38],
   "Brazilie|Japan":        [60,22,18],
   "Duitsland|Paraguay":    [62,22,16],
@@ -626,19 +597,20 @@ const BOOK_ODDS={
   "Australie|Egypte":      [40,28,32],
   "Argentinie|Kaapverdie": [80,13,7],
   "Colombia|Ghana":        [58,24,18],
-  // ── R16 — gespeeld ──
+  // ── R16 — alle 8 gespeeld ──
   "Canada|Marokko":        [30,27,43],
   "Paraguay|Frankrijk":    [12,19,69],
   "Brazilie|Noorwegen":    [46,26,28],
   "Mexico|Engeland":       [35,25,40],
-  // ── R16 — nog te spelen (odds 6 jul 11:55) ──
-  "Portugal|Spanje":       [23,27,50],  // Spanje groot favoriet
-  "VS|Belgie":             [38,28,35],  // vrijwel gelijkwaardig
-  "Argentinie|Egypte":     [72,18,10],  // Argentinië dominant favoriet
-  "Zwitserland|Colombia":  [35,28,37],  // Colombia licht favoriet
-  // ── QF — bekend ──
-  "Frankrijk|Marokko":     [52,26,22],  // Frankrijk favoriet maar Marokko gevaarlijk
-  "Noorwegen|Engeland":    [38,26,36],  // open duel
+  "Portugal|Spanje":       [23,27,50],
+  "VS|Belgie":             [38,28,35],
+  "Argentinie|Egypte":     [72,18,10],
+  "Zwitserland|Colombia":  [35,28,37],
+  // ── QF — alle 4 bekend, nog niet gespeeld ──
+  "Frankrijk|Marokko":     [52,26,22],  // pouletips: Fra 52%, Gelijk 26%, Mar 22%
+  "Spanje|Belgie":         [58,24,18],  // Spanje favoriet na sterk toernooi
+  "Noorwegen|Engeland":    [40,27,33],  // open duel, Haaland vs Kane
+  "Argentinie|Zwitserland":[68,20,12],  // Argentinië groot favoriet
 };
 
 function predScore(home,away,md){
