@@ -2,100 +2,120 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>jefrey.nl</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>jefrey.nl — Data 360 Study Hub</title>
 <style>
-  :root{
-    --bg: #0F1115;
-    --card: #171A20;
-    --line: #262B33;
-    --text: #E7E9EC;
-    --muted: #8A93A1;
-    --accent: #C9A227;
+  :root {
+    --bg: #f5f6f8;
+    --panel: #ffffff;
+    --panel-2: #f0f1f4;
+    --border: #dfe2e8;
+    --text: #1b1d22;
+    --text-dim: #62666f;
+    --accent: #2f6fed;
+    --accent-dim: #e8effd;
+    --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
   }
-  *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;}
-  body{
+  [data-theme="dark"] {
+    --bg: #14161a;
+    --panel: #1c1f25;
+    --panel-2: #22252c;
+    --border: #2c3038;
+    --text: #eceef1;
+    --text-dim: #9096a1;
+    --accent: #5b8dff;
+    --accent-dim: #1c2740;
+    --shadow: 0 1px 3px rgba(0,0,0,0.4);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
     background: var(--bg);
     color: var(--text);
-    font-family:'Inter', sans-serif;
-    min-height:100vh;
-    display:flex; flex-direction:column; align-items:center;
-    padding: 48px 16px 32px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.5;
   }
-  .eyebrow{
-    font-family:'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.14em;
-    text-transform: uppercase; color: var(--accent); margin-bottom: 8px;
+  .wrap { max-width: 640px; margin: 0 auto; padding: 40px 20px 60px; }
+  header.top {
+    display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;
   }
-  h1{
-    font-family:'Space Grotesk', sans-serif; font-size: clamp(26px, 6vw, 34px);
-    margin: 0 0 6px; letter-spacing: -0.01em;
+  h1 { font-size: 20px; font-weight: 600; margin: 0; letter-spacing: -0.2px; }
+  .sub { color: var(--text-dim); font-size: 13.5px; margin: 4px 0 30px; }
+  .theme-btn {
+    border: 1px solid var(--border); background: var(--panel); color: var(--text);
+    border-radius: 8px; padding: 7px 11px; cursor: pointer; font-size: 13px;
   }
-  .sub{ color: var(--muted); font-size: 14px; margin-bottom: 32px; }
-
-  .list{ width:100%; max-width: 480px; display:flex; flex-direction:column; gap: 12px; }
-  a.item{
-    display:flex; align-items:center; gap: 16px;
-    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
-    padding: 18px 18px;
-    text-decoration:none; color: var(--text);
-    transition: border-color 0.15s, transform 0.1s;
+  .tool {
+    display: flex; align-items: center; gap: 14px;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 12px;
+    padding: 16px 18px; margin-bottom: 12px; text-decoration: none; color: var(--text);
+    box-shadow: var(--shadow); transition: border-color .15s, transform .1s;
   }
-  a.item:hover{ border-color: var(--accent); transform: translateY(-1px); }
-  a.item:focus-visible{ outline: 2px solid var(--accent); outline-offset: 2px; }
-  .num{
-    font-family:'JetBrains Mono', monospace; font-size: 13px; color: var(--accent);
-    border: 1px solid var(--line); border-radius: 8px;
-    width: 30px; height: 30px; flex: none;
-    display:flex; align-items:center; justify-content:center;
+  .tool:hover { border-color: var(--accent); transform: translateY(-1px); }
+  .tool .icon {
+    flex: 0 0 42px; height: 42px; border-radius: 10px; background: var(--accent-dim);
+    color: var(--accent); display: flex; align-items: center; justify-content: center;
+    font-size: 19px; font-weight: 700;
   }
-  .meta{ flex: 1; min-width:0; }
-  .title{ font-family:'Space Grotesk', sans-serif; font-size: 16px; margin-bottom: 2px; }
-  .desc{ font-size: 12.5px; color: var(--muted); }
-  .arrow{ color: var(--muted); font-family:'JetBrains Mono', monospace; }
-
-  footer{
-    margin-top: 40px; color: var(--muted); font-size: 12px;
-    font-family:'JetBrains Mono', monospace;
-  }
+  .tool .body { flex: 1; min-width: 0; }
+  .tool .name { font-size: 15.5px; font-weight: 600; margin-bottom: 2px; }
+  .tool .desc { font-size: 13px; color: var(--text-dim); }
+  .tool .arrow { color: var(--text-dim); font-size: 18px; }
+  footer.foot { text-align: center; color: var(--text-dim); font-size: 12px; margin-top: 34px; }
+  footer.foot a { color: var(--text-dim); }
 </style>
 </head>
-<body>
-  <div class="eyebrow">jefrey.nl</div>
-  <h1>Study &amp; project tools</h1>
-  <div class="sub">Data-Con-101 prep and side projects</div>
+<body data-theme="light">
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>Data 360 Study Hub</h1>
+      <div class="sub">Data-Con-101 exam prep tools</div>
+    </div>
+    <button class="theme-btn" id="themeToggle">🌙 Dark</button>
+  </header>
 
-  <div class="list">
-    <a class="item" href="data360-flashcards-en.html">
-      <div class="num">1</div>
-      <div class="meta">
-        <div class="title">Data 360 Flashcards</div>
-        <div class="desc">106 cards, weighted to the official exam sections</div>
-      </div>
-      <div class="arrow">→</div>
-    </a>
+  <a class="tool" href="flashcards.html">
+    <div class="icon">F</div>
+    <div class="body">
+      <div class="name">Flashcards</div>
+      <div class="desc">106 cards, weighted by official exam section</div>
+    </div>
+    <div class="arrow">→</div>
+  </a>
 
-    <a class="item" href="data360-audio-qa.html">
-      <div class="num">2</div>
-      <div class="meta">
-        <div class="title">Data 360 Audio Q&amp;A</div>
-        <div class="desc">Hands-free tape-deck player, reads Q&amp;A out loud</div>
-      </div>
-      <div class="arrow">→</div>
-    </a>
+  <a class="tool" href="data360-audio-qa.html">
+    <div class="icon">▶</div>
+    <div class="body">
+      <div class="name">Audio Q&A</div>
+      <div class="desc">Hands-free tape-deck style study</div>
+    </div>
+    <div class="arrow">→</div>
+  </a>
 
-    <a class="item" href="wk2026-v3.html">
-      <div class="num">3</div>
-      <div class="meta">
-        <div class="title">WK 2026 Predictions</div>
-        <div class="desc">Groups, schedule, standings &amp; bracket</div>
-      </div>
-      <div class="arrow">→</div>
-    </a>
-  </div>
+  <a class="tool" href="data360_mc_exam_trainer.html">
+    <div class="icon">✓</div>
+    <div class="body">
+      <div class="name">MC Exam Trainer</div>
+      <div class="desc">133 multiple-choice questions, per-question check</div>
+    </div>
+    <div class="arrow">→</div>
+  </a>
 
-  <footer>jefrey.nl</footer>
+  <footer class="foot">jefrey.nl</footer>
+</div>
+
+<script>
+  const btn = document.getElementById('themeToggle');
+  let theme = localStorage.getItem('d360_theme') || 'light';
+  document.body.setAttribute('data-theme', theme);
+  btn.textContent = theme === 'dark' ? '☀️ Light' : '🌙 Dark';
+  btn.addEventListener('click', () => {
+    theme = theme === 'dark' ? 'light' : 'dark';
+    document.body.setAttribute('data-theme', theme);
+    btn.textContent = theme === 'dark' ? '☀️ Light' : '🌙 Dark';
+    localStorage.setItem('d360_theme', theme);
+  });
+</script>
 </body>
 </html>
