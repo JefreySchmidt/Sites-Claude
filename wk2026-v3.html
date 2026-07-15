@@ -434,18 +434,18 @@ const KO_TEMPLATE=[
   {id:"r16-06",date:"2026-07-07T02:00",h:"VS",         a:"Belgie",     stad:"Seattle",      round:"R16",nr:94, result:[1,4],winner:"Belgie"},
   {id:"r16-07",date:"2026-07-07T18:00",h:"Argentinie", a:"Egypte",     stad:"Atlanta",      round:"R16",nr:95, result:[3,2],winner:"Argentinie"},
   {id:"r16-08",date:"2026-07-07T22:00",h:"Zwitserland",a:"Colombia",   stad:"Vancouver",    round:"R16",nr:96, result:[0,0],winner:"Colombia",   note:"pen."},
-  // ── KWARTFINALES — alle 4 bekend, nog niet gespeeld ──
-  {id:"qf-01",date:"2026-07-09T22:00",h:"Frankrijk",   a:"Marokko",    stad:"Boston",       round:"QF", nr:97, result:null, winner:null},
-  {id:"qf-02",date:"2026-07-10T21:00",h:"Spanje",      a:"Belgie",     stad:"Los Angeles",  round:"QF", nr:98, result:null, winner:null},
-  {id:"qf-03",date:"2026-07-11T23:00",h:"Noorwegen",   a:"Engeland",   stad:"Miami",        round:"QF", nr:99, result:null, winner:null},
-  {id:"qf-04",date:"2026-07-12T03:00",h:"Argentinie",  a:"Zwitserland",stad:"Kansas City",  round:"QF", nr:100,result:null, winner:null},
+  // ── KWARTFINALES — alle 4 gespeeld ──
+  {id:"qf-01",date:"2026-07-09T22:00",h:"Frankrijk",   a:"Marokko",    stad:"Boston",       round:"QF", nr:97, result:[2,0],winner:"Frankrijk"},
+  {id:"qf-02",date:"2026-07-10T21:00",h:"Spanje",      a:"Belgie",     stad:"Los Angeles",  round:"QF", nr:98, result:[2,1],winner:"Spanje"},
+  {id:"qf-03",date:"2026-07-11T23:00",h:"Noorwegen",   a:"Engeland",   stad:"Miami",        round:"QF", nr:99, result:[1,2],winner:"Engeland",  note:"NV"},
+  {id:"qf-04",date:"2026-07-12T03:00",h:"Argentinie",  a:"Zwitserland",stad:"Kansas City",  round:"QF", nr:100,result:[3,1],winner:"Argentinie",note:"NV"},
   // ── HALVE FINALES ──
-  {id:"sf-01",date:"2026-07-14T21:00",h:null,hd:"Winnaar KF #97 (Fra/Mar)",a:null,ad:"Winnaar KF #98 (Spa/Bel)",stad:"Dallas",  round:"SF",nr:101,result:null,winner:null},
-  {id:"sf-02",date:"2026-07-15T21:00",h:null,hd:"Winnaar KF #99 (Noo/Eng)",a:null,ad:"Winnaar KF #100 (Arg/Zwi)",stad:"Atlanta",round:"SF",nr:102,result:null,winner:null},
+  {id:"sf-01",date:"2026-07-14T21:00",h:"Frankrijk",   a:"Spanje",     stad:"Dallas",       round:"SF", nr:101,result:[0,2],winner:"Spanje"},
+  {id:"sf-02",date:"2026-07-15T21:00",h:"Engeland",    a:"Argentinie", stad:"Atlanta",      round:"SF", nr:102,result:null,winner:null},
   // ── 3E PLAATS ──
-  {id:"3pl",date:"2026-07-18T23:00",h:null,hd:"Verliezer HF #101",a:null,ad:"Verliezer HF #102",stad:"Miami",round:"3PL",nr:103,result:null,winner:null},
+  {id:"3pl",date:"2026-07-18T23:00",h:"Frankrijk",     a:null,ad:"Verliezer HF #102 (Eng/Arg)",stad:"Miami",round:"3PL",nr:103,result:null,winner:null},
   // ── FINALE ──
-  {id:"fin",date:"2026-07-19T21:00",h:null,hd:"Winnaar HF #101",a:null,ad:"Winnaar HF #102",stad:"New York/NJ",round:"FIN",nr:104,result:null,winner:null},
+  {id:"fin",date:"2026-07-19T21:00",h:"Spanje",        a:null,ad:"Winnaar HF #102 (Eng/Arg)",stad:"New York/NJ",round:"FIN",nr:104,result:null,winner:null},
 ];
 
 // Groups structure (for the groups tab)
@@ -606,11 +606,19 @@ const BOOK_ODDS={
   "VS|Belgie":             [38,28,35],
   "Argentinie|Egypte":     [72,18,10],
   "Zwitserland|Colombia":  [35,28,37],
-  // ── QF — alle 4 bekend, nog niet gespeeld ──
-  "Frankrijk|Marokko":     [52,26,22],  // pouletips: Fra 52%, Gelijk 26%, Mar 22%
-  "Spanje|Belgie":         [58,24,18],  // Spanje favoriet na sterk toernooi
-  "Noorwegen|Engeland":    [40,27,33],  // open duel, Haaland vs Kane
-  "Argentinie|Zwitserland":[68,20,12],  // Argentinië groot favoriet
+  // ── QF — alle 4 gespeeld ──
+  "Frankrijk|Marokko":     [52,26,22],
+  "Spanje|Belgie":         [58,24,18],
+  "Noorwegen|Engeland":    [40,27,33],
+  "Argentinie|Zwitserland":[68,20,12],
+  // ── SF — beide gespeeld ──
+  "Frankrijk|Spanje":      [42,28,30],
+  "Engeland|Argentinie":   [36,24,40],
+  // ── FINALE & 3E PLAATS ──
+  "Spanje|Engeland":       [46,27,27],  // Spanje licht favoriet na dominante HF
+  "Spanje|Argentinie":     [42,26,32],  // mogelijke finale
+  "Frankrijk|Engeland":    [40,28,32],  // mogelijke 3e plaats
+  "Frankrijk|Argentinie":  [35,26,39],  // mogelijke 3e plaats
 };
 
 function predScore(home,away,md){
