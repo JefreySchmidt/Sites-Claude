@@ -102,51 +102,25 @@
 
   /* Session view */
   #session { display: none; }
-  .progress-wrap { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+  .progress-wrap { display: flex; flex-direction: column; gap: 8px; margin-bottom: 6px; }
+  .progress-row-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .progress-row-nav { display: flex; align-items: center; gap: 8px; }
   .progress-track { flex: 1; height: 6px; background: var(--panel-2); border-radius: 4px; overflow: hidden; }
   .progress-fill { height: 100%; background: var(--accent); border-radius: 4px; transition: width .25s; }
   .progress-txt { font-size: 12.5px; color: var(--text-dim); white-space: nowrap; }
   .score-txt { font-size: 12.5px; color: var(--text-dim); white-space: nowrap; }
-
-  /* Timer badge: normal / warn (orange) / over (red) */
-  .timer-badge {
-    font-weight:700; font-size:12.5px; padding:4px 9px; border-radius:8px;
-    background: var(--panel-2); color: var(--text-dim); border:1px solid var(--border);
-    white-space:nowrap; transition: background .2s, color .2s, border-color .2s;
-    font-variant-numeric: tabular-nums;
+  .nav-arrow { padding: 6px 10px; font-size: 14px; line-height: 1; }
+  .q-jump {
+    font-family: inherit; font-size: 12.5px; padding: 6px 8px; border-radius: 7px;
+    border: 1px solid var(--border); background: var(--panel-2); color: var(--text);
   }
-  .timer-badge.warn { color:#a86a00; background:#fff1d6; border-color:#f0c05a; }
-  [data-theme="dark"] .timer-badge.warn { color:#f0b429; background:#3a2c0f; border-color:#5c4519; }
-  .timer-badge.over { color:#fff; background: var(--bad); border-color: var(--bad); }
-
-  /* Question grid: visual map of taken/remaining/correct/incorrect */
-  .qgrid { display:flex; flex-wrap:wrap; gap:5px; width:100%; order:99; margin: 2px 0 0; }
-  .qgrid .qbox {
-    width:24px; height:24px; border-radius:6px; display:flex; align-items:center; justify-content:center;
-    font-size:10.5px; font-weight:700; border:1px solid var(--border); background: var(--panel-2);
-    color: var(--text-dim);
+  .review-banner {
+    display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap;
+    background: var(--accent-dim); border: 1px solid var(--accent); border-radius: 8px;
+    padding: 8px 12px; margin-bottom: 12px; font-size: 12.5px; color: var(--accent);
   }
-  .qgrid .qbox.correct { background: var(--good-bg); border-color: var(--good); color: var(--good); }
-  .qgrid .qbox.incorrect { background: var(--bad-bg); border-color: var(--bad); color: var(--bad); }
-  .qgrid .qbox.seen { background: var(--panel); border-style: dashed; color: var(--text-dim); }
-  .qgrid .qbox.current { outline: 2px solid var(--accent); outline-offset:1px; }
-
-  /* Resume banner on setup screen */
-  .resume-banner {
-    display:none; background: var(--accent-dim); border:1px solid var(--accent);
-    border-radius: var(--radius); padding: 14px 16px; margin-bottom: 14px; font-size: 13.5px;
-  }
-  .resume-banner.show { display:block; }
-  .resume-banner .rb-row { display:flex; gap:10px; margin-top:10px; flex-wrap:wrap; }
-  .resume-banner button {
-    padding:8px 14px; border-radius:8px; border:1px solid var(--accent); background: var(--accent);
-    color:#fff; font-weight:600; font-size:13px; cursor:pointer;
-  }
-  .resume-banner button.secondary { background:transparent; color: var(--accent); }
-
-  .time-result { margin-top:10px; font-size:13.5px; color: var(--text-dim); }
-  .time-result.ok { color: var(--good); }
-  .time-result.late { color: var(--bad); }
+  .review-banner .link-btn { padding: 2px 4px; font-size: 12.5px; }
+  .end-meta-line { color: var(--text-dim); font-size: 12.5px; margin-top: 2px; }
 
   .badge {
     display: inline-block; font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 12px;
@@ -167,7 +141,9 @@
     border-radius: 9px; padding: 12px 13px; margin-bottom: 9px; cursor: pointer;
     font-size: 14.5px; transition: border-color .15s, background .15s;
   }
-  .option:hover { border-color: var(--accent); }
+  @media (hover: hover) and (pointer: fine) {
+    .option:hover { border-color: var(--accent); }
+  }
   .option .letter {
     flex: 0 0 22px; height: 22px; border-radius: 50%; border: 1px solid var(--border);
     display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700;
@@ -206,12 +182,21 @@
   .freeform-answer { display: none; }
   .freeform-answer.show { display: block; }
 
+  .freeform-mark-row { display: none; gap: 8px; margin-top: 12px; }
+  .freeform-mark-row.show { display: flex; }
+  .freeform-mark-row button {
+    flex: 1; padding: 10px; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--panel-2); color: var(--text); font-size: 13px; cursor: pointer;
+  }
+  .freeform-mark-row button.active[data-mark="correct"] { border-color: var(--good); background: var(--good-bg); color: var(--good); }
+  .freeform-mark-row button.active[data-mark="incorrect"] { border-color: var(--bad); background: var(--bad-bg); color: var(--bad); }
+
   .end-card { text-align: center; padding: 30px 18px; }
   .end-score { font-size: 42px; font-weight: 700; margin: 6px 0 2px; }
-  .end-sub { color: var(--text-dim); font-size: 14px; margin-bottom: 8px; }
+  .end-sub { color: var(--text-dim); font-size: 14px; margin-bottom: 22px; }
   .restart-btn {
     padding: 12px 22px; border-radius: 10px; border: none; background: var(--accent);
-    color: #fff; font-weight: 600; cursor: pointer; font-size: 14px; margin-top: 14px;
+    color: #fff; font-weight: 600; cursor: pointer; font-size: 14px;
   }
   .link-btn {
     background: none; border: none; color: var(--accent); font-size: 13.5px; cursor: pointer;
@@ -228,14 +213,6 @@
   </header>
 
   <div id="setup">
-    <div class="resume-banner" id="resumeBanner">
-      <div id="resumeText"></div>
-      <div class="rb-row">
-        <button id="resumeBtn">Doorgaan met vorige sessie →</button>
-        <button class="secondary" id="discardResumeBtn">Nieuwe sessie starten (opgeslagen voortgang verwijderen)</button>
-      </div>
-    </div>
-
     <div class="card">
       <h2 class="section-title">Question source</h2>
       <div class="row" id="sourceChips"></div>
@@ -252,25 +229,39 @@
         <div class="mode-btn active" data-mode="sequential">Sequential</div>
         <div class="mode-btn" data-mode="random">Random (bank exam)</div>
       </div>
+      <div class="mode-row" style="margin-top:8px;">
+        <div class="mode-btn active" data-feedback="immediate">Immediate feedback</div>
+        <div class="mode-btn" data-feedback="end">Reveal at the end</div>
+      </div>
       <div class="num-row">
         <span style="font-size:13.5px;color:var(--text-dim);">Number of questions</span>
         <input type="number" id="numQ" min="1" value="10">
         <button class="small" id="useAllBtn" type="button">Use all</button>
       </div>
       <div class="summary-line" id="summaryLine"></div>
-      <div class="summary-line">Officieel exam: 60 vragen / 105 min. Tijdsbudget hieronder wordt automatisch naar rato van je aantal vragen berekend (≈1:45 per vraag).</div>
       <button class="start-btn" id="startBtn">Start</button>
     </div>
   </div>
 
   <div id="session">
     <div class="progress-wrap">
-      <button class="theme-btn" id="exitBtn" title="Exit (Esc)" style="padding:6px 10px;">✕ Exit</button>
-      <span class="timer-badge" id="timerBadge">00:00</span>
-      <span class="progress-txt" id="progressTxt">1 / 10</span>
-      <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
-      <span class="score-txt" id="scoreTxt">Score: 0/0</span>
-      <div class="qgrid" id="qGrid"></div>
+      <div class="progress-row-top">
+        <button class="theme-btn" id="exitBtn" title="Exit (Esc)" style="padding:6px 10px;">✕ Exit</button>
+        <span class="score-txt" id="scoreTxt">Score: 0/0</span>
+      </div>
+      <div class="progress-row-nav">
+        <button class="theme-btn nav-arrow" id="navPrevBtn" title="Previous question">‹</button>
+        <select class="q-jump" id="qJump"></select>
+        <button class="theme-btn nav-arrow" id="navNextBtn" title="Previously reached question">›</button>
+        <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+      </div>
+    </div>
+    <div class="review-banner" id="reviewBanner" style="display:none;">
+      <span id="reviewBannerText"></span>
+      <span>
+        <button class="link-btn" id="returnCurrentBtn" type="button">Return to current question</button>
+        <button class="link-btn" id="backToResultsBtn" type="button" style="display:none;">Back to results</button>
+      </span>
     </div>
     <div class="card">
       <div class="q-meta" id="qMeta"></div>
@@ -280,6 +271,10 @@
       <div class="freeform-answer" id="freeformAnswer"></div>
       <button class="check-btn" id="checkBtn">Check answer</button>
       <div class="explain" id="explainBox"></div>
+      <div class="freeform-mark-row" id="freeformMarkRow">
+        <button type="button" data-mark="correct">✓ Got it</button>
+        <button type="button" data-mark="incorrect">✗ Still shaky</button>
+      </div>
       <button class="next-btn" id="nextBtn" style="display:none;">Next question →</button>
     </div>
   </div>
@@ -289,9 +284,13 @@
       <div style="font-size:14px;color:var(--text-dim);">Session complete</div>
       <div class="end-score" id="endScore">0/0</div>
       <div class="end-sub" id="endSub"></div>
-      <div class="time-result" id="timeResult"></div>
+      <div class="end-meta-line" id="endTime"></div>
+      <div class="end-meta-line" id="endBudget"></div>
       <button class="restart-btn" id="restartBtn">New session</button>
-      <div style="margin-top:14px;"><button class="link-btn" id="reviewMissedBtn">Review missed questions</button></div>
+      <div style="margin-top:14px; display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
+        <button class="link-btn" id="reviewMissedBtn">Review missed questions</button>
+        <button class="link-btn" id="reviewAllBtn">Review all answers</button>
+      </div>
     </div>
   </div>
 
@@ -302,45 +301,25 @@
 <script>
 (function(){
   const CATEGORIES = [...new Set(ALL_QUESTIONS.map(q=>q.category))];
-
-  // --- Official exam timing config (Data-Con-101: 60 questions / 105 minutes) ---
-  const EXAM_TOTAL_QUESTIONS = 60;
-  const EXAM_TOTAL_MINUTES = 105;
-  const SECONDS_PER_QUESTION = (EXAM_TOTAL_MINUTES * 60) / EXAM_TOTAL_QUESTIONS; // 105s/question
-
-  // --- Storage for pause/resume ---
-  // Using localStorage for now (works offline and on jefrey.nl hosting).
-  // If this file is later loaded as a Claude Artifact with window.storage available,
-  // swap the three helper functions below to use window.storage.set/get/delete
-  // (shared:false); the rest of the app logic does not need to change.
-  const STORAGE_KEY = 'd360_mc_saved_session_v1';
-  function saveToStore(key, value){
-    try{ localStorage.setItem(key, JSON.stringify(value)); }catch(e){ /* ignore quota errors */ }
-  }
-  function loadFromStore(key){
-    try{ const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : null; }catch(e){ return null; }
-  }
-  function clearStore(key){
-    try{ localStorage.removeItem(key); }catch(e){}
-  }
-
+  const EXAM_TOTAL_Q = 60;
+  const EXAM_TOTAL_MIN = 105;
   const state = {
     theme: localStorage.getItem('d360_theme') || 'light',
     sources: new Set(['doc','chat']),
     categories: new Set(CATEGORIES),
     mode: 'sequential',
+    feedbackMode: 'immediate', // 'immediate' | 'end'
     session: [],
-    idx: 0,
+    records: [],      // per-question: {selectedLetters, checked, isCorrect, freeformMark}
+    current: 0,       // furthest reached (active) question index
+    viewIndex: 0,     // question currently displayed (can be <= current for review)
+    finished: false,
     score: 0,
     answered: 0,
     missed: [],
     selected: new Set(),
-    checked: false,
-    // new state for timer / grid / resume
-    timerInterval: null,
-    elapsedSeconds: 0,
-    budgetSeconds: 0,
-    results: [] // per session index: null | 'correct' | 'incorrect' | 'seen' (freeform)
+    startTime: null,
+    endTime: null
   };
 
   document.body.setAttribute('data-theme', state.theme);
@@ -414,11 +393,19 @@
     if (parseInt(numInput.value,10) > n) numInput.value = n || 1;
   }
 
-  document.querySelectorAll('.mode-btn').forEach(btn => {
+  document.querySelectorAll('.mode-btn[data-mode]').forEach(btn => {
     btn.addEventListener('click', () => {
-      document.querySelectorAll('.mode-btn').forEach(b=>b.classList.remove('active'));
+      document.querySelectorAll('.mode-btn[data-mode]').forEach(b=>b.classList.remove('active'));
       btn.classList.add('active');
       state.mode = btn.dataset.mode;
+    });
+  });
+
+  document.querySelectorAll('.mode-btn[data-feedback]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.mode-btn[data-feedback]').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      state.feedbackMode = btn.dataset.feedback;
     });
   });
 
@@ -434,158 +421,30 @@
     return arr;
   }
 
-  // ---------- Timer helpers ----------
-  function formatTime(totalSeconds){
-    const s = Math.max(0, Math.floor(totalSeconds));
-    const m = Math.floor(s/60);
-    const sec = s % 60;
-    return String(m).padStart(2,'0') + ':' + String(sec).padStart(2,'0');
-  }
-
-  function updateTimerDisplay(){
-    const badge = document.getElementById('timerBadge');
-    if (!badge) return;
-    badge.textContent = formatTime(state.elapsedSeconds);
-    badge.classList.remove('warn','over');
-    if (state.budgetSeconds > 0){
-      if (state.elapsedSeconds > state.budgetSeconds){
-        badge.classList.add('over');
-      } else if (state.elapsedSeconds >= state.budgetSeconds * 0.85){
-        badge.classList.add('warn');
-      }
-    }
-  }
-
-  function startTimer(){
-    stopTimer();
-    state.timerInterval = setInterval(() => {
-      state.elapsedSeconds++;
-      updateTimerDisplay();
-      persistSession();
-    }, 1000);
-  }
-
-  function stopTimer(){
-    if (state.timerInterval){ clearInterval(state.timerInterval); state.timerInterval = null; }
-  }
-
-  // ---------- Question grid ----------
-  function renderGrid(){
-    const grid = document.getElementById('qGrid');
-    if (!grid) return;
-    grid.innerHTML = '';
-    state.session.forEach((q, i) => {
-      const box = document.createElement('div');
-      box.className = 'qbox';
-      if (i === state.idx) box.classList.add('current');
-      const r = state.results[i];
-      if (r === 'correct') box.classList.add('correct');
-      else if (r === 'incorrect') box.classList.add('incorrect');
-      else if (r === 'seen') box.classList.add('seen');
-      box.textContent = (i+1);
-      box.title = 'Vraag ' + (i+1) + (
-        r === 'correct' ? ' — correct' :
-        r === 'incorrect' ? ' — fout' :
-        r === 'seen' ? ' — bekeken (open vraag)' :
-        ' — nog niet beantwoord'
-      );
-      grid.appendChild(box);
-    });
-  }
-
-  // ---------- Persistence (resume) ----------
-  function persistSession(){
-    if (!state.session.length) return;
-    saveToStore(STORAGE_KEY, {
-      ids: state.session.map(q=>q.id),
-      idx: state.idx,
-      score: state.score,
-      answered: state.answered,
-      results: state.results,
-      missedIds: state.missed.map(q=>q.id),
-      elapsedSeconds: state.elapsedSeconds,
-      budgetSeconds: state.budgetSeconds,
-      savedAt: Date.now()
-    });
-  }
-
-  function checkForResumableSession(){
-    const saved = loadFromStore(STORAGE_KEY);
-    const banner = document.getElementById('resumeBanner');
-    if (!saved || !saved.ids || !saved.ids.length){
-      banner.classList.remove('show');
-      return;
-    }
-    document.getElementById('resumeText').textContent =
-      'Opgeslagen sessie gevonden: vraag ' + (saved.idx+1) + ' / ' + saved.ids.length +
-      ', score ' + saved.score + '/' + saved.answered +
-      ', tijd ' + formatTime(saved.elapsedSeconds) + '.';
-    banner.classList.add('show');
-  }
-
-  function resumeSavedSession(){
-    const saved = loadFromStore(STORAGE_KEY);
-    if (!saved) return;
-    const byId = {};
-    ALL_QUESTIONS.forEach(q => byId[q.id] = q);
-    state.session = saved.ids.map(id => byId[id]).filter(Boolean);
-    if (!state.session.length){ clearStore(STORAGE_KEY); checkForResumableSession(); return; }
-    state.idx = Math.min(saved.idx, state.session.length - 1);
-    state.score = saved.score || 0;
-    state.answered = saved.answered || 0;
-    state.results = (saved.results && saved.results.length === state.session.length)
-      ? saved.results
-      : new Array(state.session.length).fill(null);
-    state.missed = (saved.missedIds || []).map(id => byId[id]).filter(Boolean);
-    state.elapsedSeconds = saved.elapsedSeconds || 0;
-    state.budgetSeconds = saved.budgetSeconds || Math.round(state.session.length * SECONDS_PER_QUESTION);
-
-    // Skip forward past any question already answered before the pause,
-    // so the resumed screen shows the same unanswered question the user left on.
-    while (state.idx < state.session.length && state.results[state.idx] !== null) {
-      state.idx++;
-    }
-
-    document.getElementById('resumeBanner').classList.remove('show');
-    document.getElementById('setup').style.display = 'none';
-    document.getElementById('endScreen').style.display = 'none';
-
-    if (state.idx >= state.session.length){
-      showEnd();
-      return;
-    }
-    document.getElementById('session').style.display = 'block';
-    startTimer();
-    renderQuestion();
-  }
-
-  document.getElementById('resumeBtn').addEventListener('click', resumeSavedSession);
-  document.getElementById('discardResumeBtn').addEventListener('click', () => {
-    clearStore(STORAGE_KEY);
-    checkForResumableSession();
-  });
-
   document.getElementById('startBtn').addEventListener('click', () => {
     let pool = ALL_QUESTIONS.filter(q => state.sources.has(q.source) && state.categories.has(q.category));
     if (state.mode === 'random') pool = shuffle(pool.slice());
     const n = Math.min(parseInt(document.getElementById('numQ').value,10) || pool.length, pool.length);
-    state.session = pool.slice(0, n);
-    state.idx = 0;
+    startSession(pool.slice(0, n));
+  });
+
+  function startSession(questions) {
+    state.session = questions;
+    state.records = questions.map(() => ({ selectedLetters: [], checked: false, isCorrect: null, freeformMark: null }));
+    state.current = 0;
+    state.viewIndex = 0;
+    state.finished = false;
     state.score = 0;
     state.answered = 0;
     state.missed = [];
-    state.results = new Array(state.session.length).fill(null);
-    state.elapsedSeconds = 0;
-    state.budgetSeconds = Math.round(state.session.length * SECONDS_PER_QUESTION);
-    clearStore(STORAGE_KEY);
-    document.getElementById('resumeBanner').classList.remove('show');
+    state.selected = new Set();
+    state.startTime = Date.now();
+    state.endTime = null;
     document.getElementById('setup').style.display = 'none';
     document.getElementById('endScreen').style.display = 'none';
     document.getElementById('session').style.display = 'block';
-    startTimer();
     renderQuestion();
-    persistSession();
-  });
+  }
 
   function badgeSourceHtml(q) {
     return q.source === 'doc'
@@ -593,13 +452,75 @@
       : '<span class="badge badge-chat">ADDED</span>';
   }
 
-  function renderQuestion() {
-    state.selected = new Set();
-    state.checked = false;
-    const q = state.session[state.idx];
-    document.getElementById('progressTxt').textContent = (state.idx+1) + ' / ' + state.session.length;
-    document.getElementById('progressFill').style.width = ((state.idx)/state.session.length*100) + '%';
+  function shouldReveal() {
+    return state.finished || state.feedbackMode === 'immediate';
+  }
+
+  function maxReachable() {
+    return state.finished ? state.session.length - 1 : state.current;
+  }
+
+  function updateCheckBtnDisabled() {
+    const q = state.session[state.viewIndex];
+    const btn = document.getElementById('checkBtn');
+    if (!btn) return;
+    if (q.type === 'freeform') { btn.disabled = false; return; }
+    btn.disabled = state.selected.size === 0;
+  }
+
+  function renderNav() {
+    const sel = document.getElementById('qJump');
+    const max = maxReachable();
+    sel.innerHTML = '';
+    for (let i = 0; i <= max; i++) {
+      const opt = document.createElement('option');
+      opt.value = i;
+      opt.textContent = 'Q' + (i + 1) + (state.records[i] && state.records[i].checked ? '' : ' •');
+      if (i === state.viewIndex) opt.selected = true;
+      sel.appendChild(opt);
+    }
+    document.getElementById('navPrevBtn').disabled = state.viewIndex <= 0;
+    document.getElementById('navNextBtn').disabled = state.viewIndex >= max;
+    document.getElementById('progressFill').style.width = (((state.finished ? state.session.length : state.current) / state.session.length) * 100) + '%';
     document.getElementById('scoreTxt').textContent = 'Score: ' + state.score + '/' + state.answered;
+
+    const banner = document.getElementById('reviewBanner');
+    const isReviewing = state.viewIndex !== state.current || state.finished;
+    if (isReviewing) {
+      banner.style.display = 'flex';
+      document.getElementById('reviewBannerText').textContent = state.finished
+        ? 'Reviewing session results'
+        : 'Reviewing a previous question — not editable';
+      document.getElementById('returnCurrentBtn').style.display = state.finished ? 'none' : 'inline-block';
+      document.getElementById('backToResultsBtn').style.display = state.finished ? 'inline-block' : 'none';
+    } else {
+      banner.style.display = 'none';
+    }
+  }
+
+  function goToQuestion(i) {
+    const max = maxReachable();
+    if (i < 0 || i > max) return;
+    state.viewIndex = i;
+    state.selected = new Set(state.records[i].selectedLetters);
+    renderQuestion();
+  }
+
+  document.getElementById('navPrevBtn').addEventListener('click', () => goToQuestion(state.viewIndex - 1));
+  document.getElementById('navNextBtn').addEventListener('click', () => goToQuestion(state.viewIndex + 1));
+  document.getElementById('qJump').addEventListener('change', (e) => goToQuestion(parseInt(e.target.value, 10)));
+  document.getElementById('returnCurrentBtn').addEventListener('click', () => goToQuestion(state.current));
+  document.getElementById('backToResultsBtn').addEventListener('click', () => {
+    document.getElementById('session').style.display = 'none';
+    document.getElementById('endScreen').style.display = 'block';
+  });
+
+  function renderQuestion() {
+    const q = state.session[state.viewIndex];
+    const rec = state.records[state.viewIndex];
+    const interactive = !state.finished && state.viewIndex === state.current && !rec.checked;
+
+    renderNav();
 
     document.getElementById('qMeta').innerHTML =
       badgeSourceHtml(q) + '<span class="badge badge-cat">' + q.category + '</span>';
@@ -608,169 +529,201 @@
     const hint = document.getElementById('qHint');
     const optWrap = document.getElementById('optionsWrap');
     const freeformBox = document.getElementById('freeformAnswer');
+    const markRow = document.getElementById('freeformMarkRow');
+    const explainBox = document.getElementById('explainBox');
     optWrap.innerHTML = '';
     freeformBox.classList.remove('show');
     freeformBox.innerHTML = '';
+    explainBox.classList.remove('show');
+    explainBox.innerHTML = '';
+    markRow.classList.remove('show');
+
+    const reveal = shouldReveal();
+    const correctSet = q.type !== 'freeform' ? new Set(q.correct) : null;
 
     if (q.type === 'freeform') {
-      hint.textContent = 'No answer choices for this one — think it through, then reveal the explanation.';
-      document.getElementById('checkBtn').textContent = 'Reveal answer';
+      hint.textContent = 'No answer choices for this one — think it through, then check the explanation.';
+      document.getElementById('checkBtn').textContent = reveal ? 'Reveal answer' : 'Continue';
+
+      if (rec.checked) {
+        if (reveal) {
+          explainBox.classList.add('show');
+          explainBox.innerHTML = '<div class="result-tag good">Explanation</div>' +
+            q.explanation.split('\n\n').map(p => `<div style="margin-bottom:8px;">${p}</div>`).join('');
+          markRow.classList.add('show');
+          markRow.querySelectorAll('button').forEach(b => b.classList.toggle('active', rec.freeformMark === b.dataset.mark));
+        } else {
+          explainBox.classList.add('show');
+          explainBox.innerHTML = '<div class="result-tag">Answer recorded</div><div>Full explanation is available once you finish the session.</div>';
+        }
+      }
     } else {
       hint.textContent = q.type === 'multi'
-        ? 'Choose ' + q.correct.length + ' answers.'
+        ? 'Choose ' + q.correct.length + ' answer' + (q.correct.length === 1 ? '' : 's') + '.'
         : 'Choose 1 answer.';
       document.getElementById('checkBtn').textContent = 'Check answer';
+
       q.options.forEach(opt => {
         const div = document.createElement('div');
         div.className = 'option';
         div.dataset.letter = opt.letter;
         div.innerHTML = `<span class="letter">${opt.letter}</span><span>${opt.text}</span>`;
-        div.addEventListener('click', () => {
-          if (state.checked) return;
-          if (q.type === 'single') {
-            state.selected = new Set([opt.letter]);
-            optWrap.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
-            div.classList.add('selected');
-          } else {
-            if (state.selected.has(opt.letter)) { state.selected.delete(opt.letter); div.classList.remove('selected'); }
-            else { state.selected.add(opt.letter); div.classList.add('selected'); }
+        const wasSelected = rec.selectedLetters.includes(opt.letter);
+        if (wasSelected) div.classList.add('selected');
+
+        if (interactive) {
+          div.addEventListener('click', () => {
+            if (q.type === 'single') {
+              state.selected = new Set([opt.letter]);
+              optWrap.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+              div.classList.add('selected');
+            } else {
+              if (state.selected.has(opt.letter)) { state.selected.delete(opt.letter); div.classList.remove('selected'); }
+              else { state.selected.add(opt.letter); div.classList.add('selected'); }
+            }
+            updateCheckBtnDisabled();
+          });
+        } else {
+          div.classList.add('disabled');
+          if (rec.checked && reveal) {
+            if (correctSet.has(opt.letter)) div.classList.add(wasSelected ? 'correct' : 'missed');
+            else if (wasSelected) div.classList.add('incorrect');
           }
-        });
+        }
         optWrap.appendChild(div);
       });
+
+      if (rec.checked) {
+        explainBox.classList.add('show');
+        if (reveal) {
+          const isCorrect = rec.isCorrect;
+          explainBox.innerHTML = `<div class="result-tag ${isCorrect ? 'good' : 'bad'}">${isCorrect ? '✓ Correct' : '✗ Incorrect — correct answer: ' + q.correct.join(', ')}</div>` +
+            q.explanation.split('\n\n').map(p => `<div style="margin-bottom:8px;">${p}</div>`).join('');
+        } else {
+          explainBox.innerHTML = '<div class="result-tag">Answer recorded</div><div>Correctness and explanation are shown at the end of the session.</div>';
+        }
+      }
     }
 
-    document.getElementById('explainBox').classList.remove('show');
-    document.getElementById('checkBtn').style.display = 'block';
-    document.getElementById('checkBtn').disabled = false;
-    document.getElementById('nextBtn').style.display = 'none';
-
-    renderGrid();
-    updateTimerDisplay();
-    persistSession();
+    const checkBtn = document.getElementById('checkBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    if (interactive) {
+      checkBtn.style.display = 'block';
+      nextBtn.style.display = 'none';
+      updateCheckBtnDisabled();
+    } else if (rec.checked && state.viewIndex === state.current && !state.finished) {
+      checkBtn.style.display = 'none';
+      nextBtn.style.display = 'block';
+    } else {
+      checkBtn.style.display = 'none';
+      nextBtn.style.display = 'none';
+    }
   }
 
   document.getElementById('checkBtn').addEventListener('click', () => {
-    const q = state.session[state.idx];
-    state.checked = true;
-    state.answered++;
+    const q = state.session[state.viewIndex];
+    const rec = state.records[state.viewIndex];
+    rec.checked = true;
+    rec.selectedLetters = [...state.selected];
 
     if (q.type !== 'freeform') {
       const correctSet = new Set(q.correct);
-      const isCorrect = correctSet.size === state.selected.size &&
-        [...correctSet].every(l => state.selected.has(l));
-      if (isCorrect) state.score++;
-      else state.missed.push(q);
-      state.results[state.idx] = isCorrect ? 'correct' : 'incorrect';
-
-      document.querySelectorAll('.option').forEach(div => {
-        div.classList.add('disabled');
-        const letter = div.dataset.letter;
-        if (correctSet.has(letter)) {
-          div.classList.add(state.selected.has(letter) ? 'correct' : 'missed');
-        } else if (state.selected.has(letter)) {
-          div.classList.add('incorrect');
-        }
-      });
-
-      const box = document.getElementById('explainBox');
-      box.classList.add('show');
-      box.innerHTML = `<div class="result-tag ${isCorrect?'good':'bad'}">${isCorrect ? '✓ Correct' : '✗ Incorrect — correct answer: ' + q.correct.join(', ')}</div>` +
-        q.explanation.split('\n\n').map(p=>`<div style="margin-bottom:8px;">${p}</div>`).join('');
-    } else {
-      state.missed.push(q); // freeform never counted correct/incorrect
-      state.results[state.idx] = 'seen';
-      const box = document.getElementById('explainBox');
-      box.classList.add('show');
-      box.innerHTML = `<div class="result-tag good">Explanation</div>` +
-        q.explanation.split('\n\n').map(p=>`<div style="margin-bottom:8px;">${p}</div>`).join('');
+      rec.isCorrect = correctSet.size === state.selected.size && [...correctSet].every(l => state.selected.has(l));
+      state.answered++;
+      if (rec.isCorrect) state.score++;
     }
 
-    document.getElementById('scoreTxt').textContent = 'Score: ' + state.score + '/' + state.answered;
-    document.getElementById('checkBtn').style.display = 'none';
-    document.getElementById('nextBtn').style.display = 'block';
+    renderQuestion();
+  });
 
-    renderGrid();
-    persistSession();
+  document.getElementById('freeformMarkRow').addEventListener('click', (e) => {
+    const btn = e.target.closest('button');
+    if (!btn) return;
+    const rec = state.records[state.viewIndex];
+    rec.freeformMark = rec.freeformMark === btn.dataset.mark ? null : btn.dataset.mark;
+    renderQuestion();
   });
 
   document.getElementById('nextBtn').addEventListener('click', () => {
-    state.idx++;
-    if (state.idx >= state.session.length) {
-      document.getElementById('progressFill').style.width = '100%';
-      showEnd();
+    state.current++;
+    if (state.current >= state.session.length) {
+      finishSession();
     } else {
-      renderQuestion();
+      goToQuestion(state.current);
     }
   });
 
+  function computeMissed() {
+    state.missed = [];
+    state.session.forEach((q, i) => {
+      const rec = state.records[i];
+      if (q.type === 'freeform') {
+        if (rec.freeformMark === 'incorrect') state.missed.push(q);
+      } else if (rec.checked && !rec.isCorrect) {
+        state.missed.push(q);
+      }
+    });
+  }
+
+  function finishSession() {
+    state.finished = true;
+    state.endTime = Date.now();
+    computeMissed();
+    showEnd();
+  }
+
+  function formatElapsed(ms) {
+    const totalSec = Math.max(0, Math.round(ms / 1000));
+    const mins = Math.floor(totalSec / 60);
+    const secs = totalSec % 60;
+    return mins + 'm ' + String(secs).padStart(2, '0') + 's';
+  }
+
   function showEnd() {
-    stopTimer();
     document.getElementById('session').style.display = 'none';
     document.getElementById('endScreen').style.display = 'block';
-    const mcCount = state.session.filter(q=>q.type!=='freeform').length;
+    const mcCount = state.session.filter(q => q.type !== 'freeform').length;
     document.getElementById('endScore').textContent = state.score + '/' + mcCount;
-    const pct = mcCount ? Math.round(state.score/mcCount*100) : 0;
-    document.getElementById('endSub').textContent = pct + '% correct on this session';
+    const pct = mcCount ? Math.round(state.score / mcCount * 100) : 0;
+    const passLine = mcCount ? (pct >= 70 ? ' — pass' : ' — below the 70% pass mark') : '';
+    document.getElementById('endSub').textContent = pct + '% correct on this session' + passLine;
+
+    const elapsedMs = (state.endTime || Date.now()) - (state.startTime || Date.now());
+    document.getElementById('endTime').textContent = 'Time taken: ' + formatElapsed(elapsedMs);
+    const budgetMin = mcCount ? Math.round((EXAM_TOTAL_MIN / EXAM_TOTAL_Q) * mcCount * 10) / 10 : 0;
+    document.getElementById('endBudget').textContent =
+      'Real exam pace for ' + mcCount + ' question' + (mcCount === 1 ? '' : 's') + ': ~' + budgetMin + ' min (' + EXAM_TOTAL_MIN + ' min / ' + EXAM_TOTAL_Q + ' Q)';
+
     document.getElementById('reviewMissedBtn').style.display = state.missed.length ? 'inline-block' : 'none';
-
-    const tr = document.getElementById('timeResult');
-    tr.classList.remove('ok','late');
-    const diff = state.budgetSeconds - state.elapsedSeconds;
-    const paceSecPerQ = state.session.length ? state.elapsedSeconds / state.session.length : 0;
-    const projectedFullExamSec = paceSecPerQ * EXAM_TOTAL_QUESTIONS;
-    const projMin = Math.round(projectedFullExamSec / 60);
-
-    let msg = 'Tijd: ' + formatTime(state.elapsedSeconds) +
-      ' (budget voor ' + state.session.length + ' vragen: ' + formatTime(state.budgetSeconds) + ')';
-    if (diff >= 0){
-      tr.classList.add('ok');
-      msg += ' — binnen tijd, ' + formatTime(diff) + ' over.';
-    } else {
-      tr.classList.add('late');
-      msg += ' — over tijd met ' + formatTime(-diff) + '.';
-    }
-    if (state.session.length !== EXAM_TOTAL_QUESTIONS && state.session.length > 0){
-      msg += ' Bij dit tempo zou je 60 vragen in ~' + projMin + ' min doen (officieel budget: ' + EXAM_TOTAL_MINUTES + ' min).';
-    }
-    tr.textContent = msg;
-
-    clearStore(STORAGE_KEY);
+    document.getElementById('reviewAllBtn').style.display = state.session.length ? 'inline-block' : 'none';
   }
 
   document.getElementById('restartBtn').addEventListener('click', () => {
     document.getElementById('endScreen').style.display = 'none';
     document.getElementById('setup').style.display = 'block';
     updateSummary();
-    checkForResumableSession();
   });
 
   document.getElementById('reviewMissedBtn').addEventListener('click', () => {
     if (!state.missed.length) return;
-    state.session = state.missed.slice();
-    state.idx = 0;
-    state.score = 0;
-    state.answered = 0;
-    state.missed = [];
-    state.results = new Array(state.session.length).fill(null);
-    state.elapsedSeconds = 0;
-    state.budgetSeconds = Math.round(state.session.length * SECONDS_PER_QUESTION);
+    document.getElementById('endScreen').style.display = 'none';
+    startSession(state.missed.slice());
+  });
+
+  document.getElementById('reviewAllBtn').addEventListener('click', () => {
+    state.viewIndex = 0;
+    state.selected = new Set(state.records[0].selectedLetters);
     document.getElementById('endScreen').style.display = 'none';
     document.getElementById('session').style.display = 'block';
-    startTimer();
     renderQuestion();
-    persistSession();
   });
 
   function exitSession() {
-    if (!confirm('Sessie pauzeren? Je voortgang en tijd worden opgeslagen, je kunt straks verdergaan via "Doorgaan met vorige sessie".')) return;
-    stopTimer();
-    persistSession();
+    if (!confirm('Exit this session? Your progress on it will be lost.')) return;
     document.getElementById('session').style.display = 'none';
     document.getElementById('endScreen').style.display = 'none';
     document.getElementById('setup').style.display = 'block';
     updateSummary();
-    checkForResumableSession();
   }
 
   document.getElementById('exitBtn').addEventListener('click', exitSession);
@@ -784,7 +737,6 @@
   renderSourceChips();
   renderCategoryChips();
   updateSummary();
-  checkForResumableSession();
 })();
 </script>
 </body>
