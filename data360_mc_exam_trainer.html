@@ -108,45 +108,6 @@
   .progress-txt { font-size: 12.5px; color: var(--text-dim); white-space: nowrap; }
   .score-txt { font-size: 12.5px; color: var(--text-dim); white-space: nowrap; }
 
-  .qgrid {
-    display: flex; flex-wrap: wrap; gap: 5px;
-    max-height: 118px; overflow-y: auto;
-    padding: 10px; margin-bottom: 14px;
-    border: 1px solid var(--border); border-radius: 10px; background: var(--panel);
-  }
-  .qgrid .qnum {
-    width: 27px; height: 27px; flex: 0 0 auto;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 11px; font-weight: 600; border-radius: 6px;
-    border: 1px solid var(--border); background: var(--panel-2); color: var(--text-dim);
-  }
-  .qgrid .qnum.current { border-color: var(--accent); color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
-  .qgrid .qnum.correct { background: var(--good-bg); border-color: var(--good); color: var(--good); }
-  .qgrid .qnum.incorrect { background: var(--bad-bg); border-color: var(--bad); color: var(--bad); }
-  .qgrid .qnum.neutral { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
-
-  .catrow { padding: 10px 0; border-bottom: 1px solid var(--border); }
-  .catrow:last-child { border-bottom: none; }
-  .catrow-top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
-  .catrow-name { font-size: 13.5px; font-weight: 500; }
-  .catrow-weight { font-size: 11.5px; color: var(--text-dim); white-space: nowrap; }
-  .catrow-score { font-size: 13px; font-weight: 600; white-space: nowrap; }
-  .catbar-wrap { width: 100%; height: 6px; background: var(--panel-2); border-radius: 3px; margin-top: 6px; overflow: hidden; }
-  .catbar-fill { height: 100%; border-radius: 3px; }
-  .weighted-total {
-    margin-top: 4px; padding-top: 14px; border-top: 2px solid var(--border);
-    font-size: 14.5px; font-weight: 700;
-  }
-  .weighted-total .sub { font-size: 12px; font-weight: 400; color: var(--text-dim); margin-top: 4px; }
-
-  .cat-warning {
-    display: none;
-    background: var(--bad-bg); border: 1px solid var(--bad); color: var(--bad);
-    border-radius: 10px; padding: 12px 14px; font-size: 12.5px; line-height: 1.5;
-    margin-bottom: 14px;
-  }
-  .cat-warning b { display: block; margin-bottom: 4px; }
-
   .badge {
     display: inline-block; font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 12px;
     letter-spacing: 0.03em;
@@ -227,7 +188,6 @@
   </header>
 
   <div id="setup">
-    <div class="cat-warning" id="categoryWarning"></div>
     <div class="card">
       <h2 class="section-title">Question source</h2>
       <div class="row" id="sourceChips"></div>
@@ -239,8 +199,17 @@
     </div>
 
     <div class="card">
+      <h2 class="section-title">Feedback</h2>
+      <div class="mode-row" id="feedbackRow">
+        <div class="mode-btn active" data-feedback="immediate">Immediate, per question</div>
+        <div class="mode-btn" data-feedback="end">End of exam (review after)</div>
+      </div>
+      <div class="summary-line" id="feedbackHint">See right after each question whether you were correct.</div>
+    </div>
+
+    <div class="card">
       <h2 class="section-title">Mode</h2>
-      <div class="mode-row">
+      <div class="mode-row" id="modeRow">
         <div class="mode-btn active" data-mode="sequential">Sequential</div>
         <div class="mode-btn" data-mode="random">Random (bank exam)</div>
       </div>
@@ -261,7 +230,6 @@
       <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
       <span class="score-txt" id="scoreTxt">Score: 0/0</span>
     </div>
-    <div class="qgrid" id="qGrid"></div>
     <div class="card">
       <div class="q-meta" id="qMeta"></div>
       <div class="q-text" id="qText"></div>
@@ -282,11 +250,7 @@
       <button class="restart-btn" id="restartBtn">New session</button>
       <div style="margin-top:14px;"><button class="link-btn" id="reviewMissedBtn">Review missed questions</button></div>
     </div>
-    <div class="card" id="categoryBreakdownCard" style="display:none;">
-      <h2 class="section-title">Score per topic (weighted vs. exam)</h2>
-      <div id="categoryBreakdownWrap"></div>
-      <div class="weighted-total" id="weightedTotalLine"></div>
-    </div>
+    <div id="fullReviewWrap" style="display:none; margin-top:14px;"></div>
   </div>
 
   <footer class="foot">133 questions · Data-Con-101 · built for your own practice</footer>
@@ -296,53 +260,20 @@
 <script>
 (function(){
   const CATEGORIES = [...new Set(ALL_QUESTIONS.map(q=>q.category))];
-  // Official Data-Con-101 exam section weights (%), keyed to the category strings used in ALL_QUESTIONS
-  const CATEGORY_WEIGHTS = {
-    'Solution Positioning': 14,
-    'Data 360 Setup and Administration': 13,
-    'Data Source Connection and Ingestion': 18,
-    'Harmonization and Unification': 17,
-    'Data Enhancements, Sharing, and Analysis': 18,
-    'Data Activations and Utilization': 20
-  };
-
-  // Consistency check: every category string in ALL_QUESTIONS must match a CATEGORY_WEIGHTS key,
-  // otherwise those questions silently drop out of the weighted score at the end of a session.
-  function checkCategoryWeights() {
-    const known = new Set(Object.keys(CATEGORY_WEIGHTS));
-    const unknownCats = {};
-    ALL_QUESTIONS.forEach(q => {
-      if (!known.has(q.category)) {
-        unknownCats[q.category] = (unknownCats[q.category] || 0) + 1;
-      }
-    });
-    const unknownList = Object.keys(unknownCats);
-    if (unknownList.length) {
-      console.warn('Data 360 exam trainer: category strings not mapped to an exam weight:', unknownCats);
-      const el = document.getElementById('categoryWarning');
-      if (el) {
-        el.style.display = 'block';
-        el.innerHTML = '<b>⚠️ ' + unknownList.length + ' unmapped categor' + (unknownList.length === 1 ? 'y' : 'ies') + ' found</b>' +
-          'These question categories don\'t match any of the 6 official exam sections, so they will be excluded from the weighted score on the end screen: ' +
-          unknownList.map(c => '"' + c + '" (' + unknownCats[c] + ' question' + (unknownCats[c] === 1 ? '' : 's') + ')').join(', ') + '. ' +
-          'Fix the category spelling in ALL_QUESTIONS, or add it to CATEGORY_WEIGHTS if it\'s a genuinely new topic.';
-      }
-    }
-    return unknownList;
-  }
   const state = {
     theme: localStorage.getItem('d360_theme') || 'light',
     sources: new Set(['doc','chat']),
     categories: new Set(CATEGORIES),
     mode: 'sequential',
+    feedbackMode: 'immediate',
     session: [],
     idx: 0,
     score: 0,
     answered: 0,
     missed: [],
-    qStatus: [],
     selected: new Set(),
-    checked: false
+    checked: false,
+    userAnswers: []
   };
 
   document.body.setAttribute('data-theme', state.theme);
@@ -416,11 +347,22 @@
     if (parseInt(numInput.value,10) > n) numInput.value = n || 1;
   }
 
-  document.querySelectorAll('.mode-btn').forEach(btn => {
+  document.querySelectorAll('#modeRow .mode-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      document.querySelectorAll('.mode-btn').forEach(b=>b.classList.remove('active'));
+      document.querySelectorAll('#modeRow .mode-btn').forEach(b=>b.classList.remove('active'));
       btn.classList.add('active');
       state.mode = btn.dataset.mode;
+    });
+  });
+
+  document.querySelectorAll('#feedbackRow .mode-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#feedbackRow .mode-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      state.feedbackMode = btn.dataset.feedback;
+      document.getElementById('feedbackHint').textContent = state.feedbackMode === 'immediate'
+        ? 'See right after each question whether you were correct.'
+        : 'Answer all questions first, then review your score and explanations at the end, like the real exam.';
     });
   });
 
@@ -445,7 +387,9 @@
     state.score = 0;
     state.answered = 0;
     state.missed = [];
-    state.qStatus = new Array(state.session.length).fill(null);
+    state.userAnswers = [];
+    document.getElementById('fullReviewWrap').style.display = 'none';
+    document.getElementById('fullReviewWrap').innerHTML = '';
     document.getElementById('setup').style.display = 'none';
     document.getElementById('endScreen').style.display = 'none';
     document.getElementById('session').style.display = 'block';
@@ -462,9 +406,12 @@
     state.selected = new Set();
     state.checked = false;
     const q = state.session[state.idx];
+    const isLast = state.idx === state.session.length - 1;
     document.getElementById('progressTxt').textContent = (state.idx+1) + ' / ' + state.session.length;
     document.getElementById('progressFill').style.width = ((state.idx)/state.session.length*100) + '%';
-    document.getElementById('scoreTxt').textContent = 'Score: ' + state.score + '/' + state.answered;
+    document.getElementById('scoreTxt').textContent = state.feedbackMode === 'end'
+      ? 'Exam mode — results at the end'
+      : 'Score: ' + state.score + '/' + state.answered;
 
     document.getElementById('qMeta').innerHTML =
       badgeSourceHtml(q) + '<span class="badge badge-cat">' + q.category + '</span>';
@@ -477,14 +424,18 @@
     freeformBox.classList.remove('show');
     freeformBox.innerHTML = '';
 
+    const finishLabel = isLast ? 'Finish exam' : 'Next question →';
+
     if (q.type === 'freeform') {
-      hint.textContent = 'No answer choices for this one — think it through, then reveal the explanation.';
-      document.getElementById('checkBtn').textContent = 'Reveal answer';
+      hint.textContent = state.feedbackMode === 'immediate'
+        ? 'No answer choices for this one — think it through, then reveal the explanation.'
+        : 'No answer choices for this one — think it through, then continue.';
+      document.getElementById('checkBtn').textContent = state.feedbackMode === 'immediate' ? 'Reveal answer' : finishLabel;
     } else {
       hint.textContent = q.type === 'multi'
         ? 'Choose ' + q.correct.length + ' answers.'
         : 'Choose 1 answer.';
-      document.getElementById('checkBtn').textContent = 'Check answer';
+      document.getElementById('checkBtn').textContent = state.feedbackMode === 'immediate' ? 'Check answer' : finishLabel;
       q.options.forEach(opt => {
         const div = document.createElement('div');
         div.className = 'option';
@@ -509,27 +460,20 @@
     document.getElementById('checkBtn').style.display = 'block';
     document.getElementById('checkBtn').disabled = false;
     document.getElementById('nextBtn').style.display = 'none';
-
-    renderQuestionGrid();
-  }
-
-  function renderQuestionGrid() {
-    const wrap = document.getElementById('qGrid');
-    wrap.innerHTML = '';
-    state.session.forEach((q, i) => {
-      const el = document.createElement('div');
-      el.className = 'qnum';
-      if (i === state.idx) el.classList.add('current');
-      const st = state.qStatus[i];
-      if (st) el.classList.add(st);
-      el.textContent = i + 1;
-      el.title = 'Q' + (i + 1) + (st ? ' — ' + (st === 'correct' ? 'correct' : st === 'incorrect' ? 'incorrect' : 'answered') : ' — not answered yet');
-      wrap.appendChild(el);
-    });
   }
 
   document.getElementById('checkBtn').addEventListener('click', () => {
     const q = state.session[state.idx];
+
+    if (state.feedbackMode === 'end') {
+      state.userAnswers[state.idx] = {
+        type: q.type,
+        selected: q.type === 'freeform' ? null : [...state.selected]
+      };
+      advance();
+      return;
+    }
+
     state.checked = true;
     state.answered++;
 
@@ -539,7 +483,6 @@
         [...correctSet].every(l => state.selected.has(l));
       if (isCorrect) state.score++;
       else state.missed.push(q);
-      state.qStatus[state.idx] = isCorrect ? 'correct' : 'incorrect';
 
       document.querySelectorAll('.option').forEach(div => {
         div.classList.add('disabled');
@@ -557,7 +500,6 @@
         q.explanation.split('\n\n').map(p=>`<div style="margin-bottom:8px;">${p}</div>`).join('');
     } else {
       state.missed.push(q); // freeform never counted correct/incorrect
-      state.qStatus[state.idx] = 'neutral';
       const box = document.getElementById('explainBox');
       box.classList.add('show');
       box.innerHTML = `<div class="result-tag good">Explanation</div>` +
@@ -567,10 +509,10 @@
     document.getElementById('scoreTxt').textContent = 'Score: ' + state.score + '/' + state.answered;
     document.getElementById('checkBtn').style.display = 'none';
     document.getElementById('nextBtn').style.display = 'block';
-    renderQuestionGrid();
+    document.getElementById('nextBtn').textContent = (state.idx === state.session.length - 1) ? 'Finish exam' : 'Next question →';
   });
 
-  document.getElementById('nextBtn').addEventListener('click', () => {
+  function advance() {
     state.idx++;
     if (state.idx >= state.session.length) {
       document.getElementById('progressFill').style.width = '100%';
@@ -578,99 +520,80 @@
     } else {
       renderQuestion();
     }
-  });
+  }
+
+  document.getElementById('nextBtn').addEventListener('click', advance);
+
+  function renderMcReview(q, selectedSet, correctSet, isCorrect) {
+    const optsHtml = q.options.map(opt => {
+      let cls = 'option disabled';
+      if (correctSet.has(opt.letter)) cls += selectedSet.has(opt.letter) ? ' correct' : ' missed';
+      else if (selectedSet.has(opt.letter)) cls += ' incorrect';
+      return `<div class="${cls}"><span class="letter">${opt.letter}</span><span>${opt.text}</span></div>`;
+    }).join('');
+    return `<div class="card">
+      <div class="q-meta">${badgeSourceHtml(q)}<span class="badge badge-cat">${q.category}</span></div>
+      <div class="q-text" style="font-size:15px;">${q.text}</div>
+      <div style="margin:10px 0;">${optsHtml}</div>
+      <div class="explain show"><div class="result-tag ${isCorrect?'good':'bad'}">${isCorrect ? '✓ Correct' : '✗ Incorrect — correct answer: ' + q.correct.join(', ')}</div>${q.explanation.split('\n\n').map(p=>'<div style="margin-bottom:8px;">'+p+'</div>').join('')}</div>
+    </div>`;
+  }
+
+  function renderFreeformReview(q) {
+    return `<div class="card">
+      <div class="q-meta">${badgeSourceHtml(q)}<span class="badge badge-cat">${q.category}</span></div>
+      <div class="q-text" style="font-size:15px;">${q.text}</div>
+      <div class="explain show"><div class="result-tag good">Explanation</div>${q.explanation.split('\n\n').map(p=>'<div style="margin-bottom:8px;">'+p+'</div>').join('')}</div>
+    </div>`;
+  }
 
   function showEnd() {
     document.getElementById('session').style.display = 'none';
     document.getElementById('endScreen').style.display = 'block';
+
+    if (state.feedbackMode === 'end') {
+      state.score = 0;
+      state.answered = 0;
+      state.missed = [];
+      state.session.forEach((q, i) => {
+        if (q.type === 'freeform') return;
+        state.answered++;
+        const ua = state.userAnswers[i];
+        const selectedSet = new Set(ua ? ua.selected : []);
+        const correctSet = new Set(q.correct);
+        const isCorrect = correctSet.size === selectedSet.size && [...correctSet].every(l => selectedSet.has(l));
+        if (isCorrect) state.score++;
+        else state.missed.push(q);
+      });
+    }
+
     const mcCount = state.session.filter(q=>q.type!=='freeform').length;
     document.getElementById('endScore').textContent = state.score + '/' + mcCount;
     const pct = mcCount ? Math.round(state.score/mcCount*100) : 0;
     document.getElementById('endSub').textContent = pct + '% correct on this session';
     document.getElementById('reviewMissedBtn').style.display = state.missed.length ? 'inline-block' : 'none';
-    renderCategoryBreakdown();
-  }
 
-  function renderCategoryBreakdown() {
-    // Tally correct/total per category, scored questions only (freeform excluded, same as endScore)
-    const stats = {};
-    state.session.forEach((q, i) => {
-      if (q.type === 'freeform') return;
-      if (!stats[q.category]) stats[q.category] = { correct: 0, total: 0 };
-      stats[q.category].total++;
-      if (state.qStatus[i] === 'correct') stats[q.category].correct++;
-    });
-
-    const wrap = document.getElementById('categoryBreakdownWrap');
-    wrap.innerHTML = '';
-    let weightCovered = 0;
-    let weightedContribution = 0;
-    const orderedCats = CATEGORIES.filter(c => stats[c] && CATEGORY_WEIGHTS.hasOwnProperty(c));
-    const unmappedCats = CATEGORIES.filter(c => stats[c] && !CATEGORY_WEIGHTS.hasOwnProperty(c));
-
-    if (!orderedCats.length && !unmappedCats.length) {
-      document.getElementById('categoryBreakdownCard').style.display = 'none';
-      return;
+    const fullReviewWrap = document.getElementById('fullReviewWrap');
+    if (state.feedbackMode === 'end') {
+      fullReviewWrap.style.display = 'block';
+      fullReviewWrap.innerHTML = state.session.map((q, i) => {
+        if (q.type === 'freeform') return renderFreeformReview(q);
+        const ua = state.userAnswers[i];
+        const selectedSet = new Set(ua ? ua.selected : []);
+        const correctSet = new Set(q.correct);
+        const isCorrect = correctSet.size === selectedSet.size && [...correctSet].every(l => selectedSet.has(l));
+        return renderMcReview(q, selectedSet, correctSet, isCorrect);
+      }).join('');
+    } else {
+      fullReviewWrap.style.display = 'none';
+      fullReviewWrap.innerHTML = '';
     }
-
-    orderedCats.forEach(cat => {
-      const { correct, total } = stats[cat];
-      const weight = CATEGORY_WEIGHTS[cat];
-      const pct = total ? Math.round((correct / total) * 100) : 0;
-      weightCovered += weight;
-      weightedContribution += (pct / 100) * weight;
-
-      const row = document.createElement('div');
-      row.className = 'catrow';
-      row.innerHTML = `
-        <div class="catrow-top">
-          <span class="catrow-name">${cat}</span>
-          <span class="catrow-weight">exam weight ${weight}%</span>
-        </div>
-        <div class="catrow-top" style="margin-top:2px;">
-          <span class="catbar-wrap" style="flex:1;"><span class="catbar-fill" style="width:${pct}%; background:${pct >= 70 ? 'var(--good)' : 'var(--bad)'};"></span></span>
-          <span class="catrow-score">${correct}/${total} &middot; ${pct}%</span>
-        </div>`;
-      wrap.appendChild(row);
-    });
-
-    if (unmappedCats.length) {
-      unmappedCats.forEach(cat => {
-        const { correct, total } = stats[cat];
-        const pct = total ? Math.round((correct / total) * 100) : 0;
-        const row = document.createElement('div');
-        row.className = 'catrow';
-        row.style.opacity = '0.75';
-        row.innerHTML = `
-          <div class="catrow-top">
-            <span class="catrow-name">${cat}</span>
-            <span class="catrow-weight" style="color:var(--bad);">unmapped — excluded from weighting</span>
-          </div>
-          <div class="catrow-top" style="margin-top:2px;">
-            <span class="catbar-wrap" style="flex:1;"><span class="catbar-fill" style="width:${pct}%; background:${pct >= 70 ? 'var(--good)' : 'var(--bad)'};"></span></span>
-            <span class="catrow-score">${correct}/${total} &middot; ${pct}%</span>
-          </div>`;
-        wrap.appendChild(row);
-      });
-    }
-
-    // Weighted total, normalized to the exam weight actually covered by this session's categories
-    const weightedScore = weightCovered ? Math.round((weightedContribution / weightCovered) * 100) : 0;
-    const coverageNote = weightCovered < 100
-      ? `Covers ${weightCovered}% of total exam weight (not every topic was included in this session).`
-      : `Covers 100% of total exam weight.`;
-    const unmappedNote = unmappedCats.length
-      ? ` ${unmappedCats.reduce((s, c) => s + stats[c].total, 0)} question(s) from unmapped categor${unmappedCats.length === 1 ? 'y' : 'ies'} were excluded from this weighted score entirely — see the fix note above the setup screen.`
-      : '';
-    document.getElementById('weightedTotalLine').innerHTML =
-      `Weighted score: ${weightedScore}% ${weightedScore >= 70 ? '(pass level)' : '(below 70% pass mark)'}` +
-      `<div class="sub">${coverageNote} Weighting simulates the official exam's per-section percentages, applied to your score in each covered topic.${unmappedNote}</div>`;
-
-    document.getElementById('categoryBreakdownCard').style.display = 'block';
   }
 
   document.getElementById('restartBtn').addEventListener('click', () => {
     document.getElementById('endScreen').style.display = 'none';
+    document.getElementById('fullReviewWrap').style.display = 'none';
+    document.getElementById('fullReviewWrap').innerHTML = '';
     document.getElementById('setup').style.display = 'block';
     updateSummary();
   });
@@ -682,7 +605,12 @@
     state.score = 0;
     state.answered = 0;
     state.missed = [];
-    state.qStatus = new Array(state.session.length).fill(null);
+    state.userAnswers = [];
+    state.feedbackMode = 'immediate';
+    document.querySelectorAll('#feedbackRow .mode-btn').forEach(b => b.classList.toggle('active', b.dataset.feedback === 'immediate'));
+    document.getElementById('feedbackHint').textContent = 'See right after each question whether you were correct.';
+    document.getElementById('fullReviewWrap').style.display = 'none';
+    document.getElementById('fullReviewWrap').innerHTML = '';
     document.getElementById('endScreen').style.display = 'none';
     document.getElementById('session').style.display = 'block';
     renderQuestion();
@@ -704,7 +632,6 @@
     }
   });
 
-  checkCategoryWeights();
   renderSourceChips();
   renderCategoryChips();
   updateSummary();
